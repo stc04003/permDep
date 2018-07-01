@@ -1,3 +1,6 @@
+// C codes for computing log-rank statistics
+// Modified from the survival package (citation("survival"))
+
 #include "R.h"
 #include "Rinternals.h"
 #include <R_ext/Utils.h>  
@@ -200,12 +203,6 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
     sort2  = INTEGER(sort22);
     strata = INTEGER(strata2);
 
-    /*
-    ** scratch space
-    **  nvar: a, a2, newbeta, maxbeta, scale
-    **  nvar*nvar: cmat, cmat2
-    **  n: eta
-    */
     eta = (double *) R_alloc(nused + 5*nvar + 2*nvar*nvar, sizeof(double));
     a = eta + nused;
     a2 = a +nvar;
@@ -213,14 +210,6 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
     scale  = maxbeta + nvar;
     oldbeta = scale + nvar;   
 
-    /*
-    **  Set up the ragged arrays
-    **  covar2 might not need to be duplicated, even though
-    **  we are going to modify it, due to the way this routine was
-    **  was called.  In this case NAMED(covar2) will =0
-    **  Changed NAMED(covar2) to MAYBE_REFERENCED(covar2) on 04/17/2018 
-    **  as suggested by Tomas Kalibera
-    */
     PROTECT(imat2 = allocVector(REALSXP, nvar*nvar));
     nprotect =1;
     if (MAYBE_REFERENCED(covar2)>0) {
@@ -256,11 +245,7 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
     flag   =  INTEGER(flag2);
     iter2  =  SET_VECTOR_ELT(rlist, 7, allocVector(INTSXP, 1));
     iter = INTEGER(iter2);
-    
-    /*
-    ** Subtract the mean from each covar, as this makes the variance
-    **  computation much more stable
-    */
+
     temp2 =0;
     for (i=0; i<nused; i++) temp2 += weights[i];  /* sum of weights */
 
@@ -299,19 +284,6 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
         for (i=0; i<nvar; i++) beta[i] /= scale[i]; /* rescale initial betas */
         }
     else {for (i=0; i<nvar; i++) scale[i] = 1.0;}
-    
-    /* 
-    **        Set the max beta.  For safety we want beta*x < log(max double) so 
-    **  the the risk score exp(x beta) never becomes either infinite or 0.
-    **  This limit is around 700 for most hardware.  Since exp(23) > population
-    **  of the earth, any beta*x over 20 is a silly relative risk for a Cox
-    **  model, however.  
-    **   We want to cut off huge values, but not take action very often since
-    **  doing so can mess up the iteration in general.
-    **  One of the case-cohort papers suggests using anoffset of -100 to 
-    **  indicate "no risk", meaning that x*beta values of 50-100 can occur 
-    **  in "ok" data sets.  Compromise.
-    */
     for (i=0; i<nvar; i++) maxbeta[i] = 200/maxbeta[i];
 
     ndeath =0;
@@ -333,22 +305,6 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
             zbeta += beta[i]*covar[i][person];
         eta[person] = zbeta + offset[person];
     }
-
-    /*
-    **  'person' walks through the the data from 1 to n,
-    **     sort1[0] points to the largest stop time, sort1[1] the next, ...
-    **  'time' is a scratch variable holding the time of current interest
-    **  'indx2' walks through the start times.  It will be smaller than 
-    **    'person': if person=27 that means that 27 subjects have stop >=time,
-    **    and are thus potential members of the risk set.  If 'indx2' =9,
-    **    that means that 9 subjects have start >=time and thus are NOT part
-    **    of the risk set.  (stop > start for each subject guarrantees that
-    **    the 9 are a subset of the 27). 
-    **  Basic algorithm: move 'person' forward, adding the new subject into
-    **    the risk set.  If this is a new, unique death time, take selected
-    **    old obs out of the sums, add in obs tied at this time, then
-    **    add terms to the loglik, etc.
-    */
     istrat=0;
     indx2 =0;
     denom =0;
@@ -372,9 +328,6 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
         }
         else {
             time = stop[p];
-            /*
-            ** subtract out the subjects whose start time is to the right
-            */
             for (; indx2<strata[istrat]; indx2++) {
                 p = sort2[indx2];
                 if (start[p] < time) break;
@@ -387,14 +340,7 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
                     for (j=0; j<=i; j++)
                         cmat[i][j] -= risk*covar[i][p]*covar[j][p];
                     }
-                }
-
-            /*
-            ** compute the averages over subjects with
-            **   exactly this death time (a2 & c2)
-            ** (and add them into a and cmat while we are at it).
-            */
-            efron_wt =0;
+	    }            efron_wt =0;
             meanwt =0;
             for (i=0; i<nvar; i++) {
                 a2[i]=0;
@@ -428,14 +374,6 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
                 }
                 }
             ksave = k;
-                
-            /* 
-            ** If the average eta value has gotton out of hand, fix it.
-            ** We must avoid overflow in the exp function (~750 on Intel)
-            ** and want to act well before that, but not take action very often.  
-            ** One of the case-cohort papers suggests an offset of -100 meaning
-            ** that etas of 50-100 can occur in "ok" data, so make it larger than this.
-            */
             if (fabs(meaneta) > (nrisk *110)) {  
                 meaneta = meaneta/nrisk;
                 for (i=0; i<nused; i++) eta[i] -= meaneta;
@@ -520,10 +458,6 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
         return(rlist);
     }
     else {  
-        /* Update beta for the next iteration
-        **  Never complain about convergence on this first step or impose step
-        **  halving.  That way someone can force one iter at a time.
-        */
         for (i=0; i<nvar; i++) {
             oldbeta[i] = beta[i];
             beta[i] = beta[i] + a[i];
@@ -547,22 +481,7 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
                 zbeta += beta[i]*covar[i][person];
             eta[person] = zbeta + offset[person];
         }
-
-        /*
-        **  'person' walks through the the data from 1 to n,
-        **     sort1[0] points to the largest stop time, sort1[1] the next, ...
-        **  'time' is a scratch variable holding the time of current interest
-        **  'indx2' walks through the start times.  It will be smaller than 
-        **    'person': if person=27 that means that 27 subjects have stop >=time,
-        **    and are thus potential members of the risk set.  If 'indx2' =9,
-        **    that means that 9 subjects have start >=time and thus are NOT part
-        **    of the risk set.  (stop > start for each subject guarrantees that
-        **    the 9 are a subset of the 27). 
-        **  Basic algorithm: move 'person' forward, adding the new subject into
-        **    the risk set.  If this is a new, unique death time, take selected
-        **    old obs out of the sums, add in obs tied at this time, then
-        **    add terms to the loglik, etc.
-        */
+	
         istrat=0;
         indx2 =0;
         denom =0;
@@ -642,14 +561,7 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
                     }
                     }
                 ksave = k;
-                    
-                /* 
-                ** If the average eta value has gotton out of hand, fix it.
-                ** We must avoid overflow in the exp function (~750 on Intel)
-                ** and want to act well before that, but not take action very often.  
-                ** One of the case-cohort papers suggests an offset of -100 meaning
-                ** that etas of 50-100 can occur in "ok" data, so make it larger than this.
-                */
+		
                 if (fabs(meaneta) > (nrisk *110)) {  
                     meaneta = meaneta/nrisk;
                     for (i=0; i<nused; i++) eta[i] -= meaneta;
@@ -666,10 +578,7 @@ SEXP agfit4(SEXP surv2,      SEXP covar2,    SEXP strata2,
                     meaneta =0;
                 }
                     
-                /*
-                ** Add results into u and imat for all events at this time point
-                */
-                meanwt /= deaths;
+		meanwt /= deaths;
                 itemp = -1;
                 for (; person<ksave; person++) {
                     p = sort1[person];

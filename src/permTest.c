@@ -62,50 +62,6 @@ void kendallTrun(double *x, double *y, double *Delta, int *n,
   out;
 }
 
-
-/* Jing's version with minor modifications*/
-/* There are problems with se as it directly implements \xi rather than using formula from Sec. 6 */
-
-/* void kendallTrun(double *x, double *y, double *Delta, int *n,  */
-/* 		 // output */
-/* 		 double *out) { */
-/*   double *bb = Calloc(*n, double);  */
-/*   int i, j, k; */
-/*   for (i = 0; i < *n; i++) { */
-/*     bb[i] = 0; */
-/*   } */
-/*   double h12 = 0.0; */
-/*   double M = 0.0; */
-/*   double n2 = 0.0; */
-/*   double tau; */
-/*   double tmp; */
-/*   double bbSum; */
-/*   for (i = 0; i < (*n - 1); i++) { */
-/*     for (j = i + 1; j < *n; j++) { */
-/*       //      if (fmax(x[i], x[j]) <= fmin(y[i], y[j]) & Delta[i] * Delta[j] + Delta[i] * (y[i] < y[j]) + Delta[j] * (y[j] < y[i]) > 0) { */
-/*       if (fmax(x[i], x[j]) <= fmin(y[i], y[j]) & Delta[i] *  Delta[j] + Delta[i] * (y[i] < y[j]) + Delta[j] * (y[j] < y[i]) > 0) { */
-/* 	tmp = (y[i] - y[j]) * (x[i] - x[j]); */
-/* 	h12 += (tmp > 0) - (tmp < 0); */
-/* 	bb[i] += (tmp > 0) - (tmp < 0); */
-/* 	bb[j] += (tmp > 0) - (tmp < 0); */
-/* 	M += 1; */
-/*       } */
-/*       n2 += 1; */
-/*     } */
-/*   } */
-/*   tau = h12 / M; */
-/*   for (i = 0; i < *n; i++) {  */
-/*     bbSum += bb[i] * bb[i]; */
-/*   } */
-/*   out[0] = tau; */
-/*   out[1] = 1/(2 * n2 * (*n-2)) * (bbSum - 2 * M) - M * M * tau * tau / (n2 * n2); */
-/*   out[1] = 4 * out[1] / (*n * M * M / (n2 * n2)); */
-/*   out[2] = M; */
-/*   Free(bb); */
-/*   out; */
-/* } */
-
-
 void kendallTrunWgt(double *x, double *y, double *Delta, int *n, double *scX, double *scT, 
 		    // output
 		    double *out) {
