@@ -1,6 +1,6 @@
 mysample <- function(x, n) {
     res <- vector("integer", length(x))
-    .C("mysample", as.integer(x), as.integer(n),
+    .C("mysampleC", as.integer(x), as.integer(n),
        as.integer(length(x)), out = as.integer(res), PACKAGE = "permDep")$out
 }
 

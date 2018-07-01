@@ -2,7 +2,7 @@
 #include <Rmath.h>
 #include <math.h>
 
-void mysample(int *x, int *n, int *N, 
+void mysampleC(int *x, int *n, int *N, 
 	      //output
 	      double *out) {
   int t = 0; 

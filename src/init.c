@@ -5,11 +5,10 @@
 #include <R_ext/Rdynload.h>
 #include <stdlib.h> // for NULL
 
-
 /* .C calls */
 extern void kendallTrun(void *, void *, void *, void *, void *);
 extern void kendallTrunWgt(void *, void *, void *, void *, void *, void *, void *);
-extern void mysample(void *, void *, void *, void *);
+extern void mysampleC(void *, void *, void *, void *);
 
 /* .Call calls */
 extern SEXP agfit4(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -17,7 +16,7 @@ extern SEXP agfit4(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, S
 static const R_CMethodDef CEntries[] = {
     {"kendallTrun",    (DL_FUNC) &kendallTrun,    5},
     {"kendallTrunWgt", (DL_FUNC) &kendallTrunWgt, 7},
-    {"mysample",       (DL_FUNC) &mysample,       4},
+    {"mysampleC",      (DL_FUNC) &mysampleC,      4},
     {NULL, NULL, 0}
 };
 
