@@ -1,3 +1,4 @@
+#' @export
 print.permDep <- function(x, ...) {
     if (class(x) != "permDep") stop("Must be a permDep object")
     if (all(x$kendallOnly, x$minp1Only, x$minp2Only) || all(!x$kendallOnly, !x$minp1Only, !x$minp2Only)) {

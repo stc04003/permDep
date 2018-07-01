@@ -195,17 +195,82 @@ getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
     out[order(out[,1]),]
 }
 
-permDep <- function(trun, obs, permSize, cens, sampling = "cond", 
-                     kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
-                     nc = ceiling(detectCores() / 2), seed = NULL) {
-    ## obs: the failure time, which is subject to left truncation by trun and right censroing
-    ## observable:  obs >= trun
-    ## trun: the truncation time
-    ## permSize:  number of random samples from permutation distribution
+#' Permutation test for general dependent truncation
+#'
+#' Perform permutatoin test based on conditional or unconditional approach.
+#'
+#' @param trun is the left truncation time.
+#' @param obs is the observed failure time.
+#' @param permSize is the number of permutations.
+#' @param cens is the status indicator; 0 = censored, 1 = event.
+#' @param sampling a character string specifying the sampling method used in permutatin.
+#' The following are permitted:
+#' \describe{
+#' \item{conditional}{conditional permutation;}
+#' \item{uconditional}{unconditional permutation;}
+#' \item{is.conditional}{importance sampling version of conditional permutation;}
+#' \item{is.uconditional}{importance sampling version of unconditional permutation;}
+#' }
+#' @param kendallOnly,minp1Only,minp2Only optional values indicating which test statistics to be used.
+#' If all leave as \code{FALSE}, \code{permDep} will use all three test statistics in each permutation.
+#' @param nc is the number of cores used in permutatin.
+#' When \code{nc > 1}, permutation is carried out with parallel computing.
+#' @param seed an optional vector containing random seeds to be used to generate permutation samples.
+#' Random seeds will be used when left unspecified.
+#'
+#' @return A list containing output with the following components:
+#' \describe{
+#' \item{obsKen}{the observed p-value using Kendall's tau test statistic.}
+#' \item{obsP1}{the observed p-value using minp1 test statistic.}
+#' \item{obsP2}{the observed p-value using minp2 test statistic.}
+#' \item{obsTest1}{the observed minp1 test statistic.}
+#' \item{obsTest2}{the observed minp2 test statistic.}
+#' \item{permKen}{Kendall's tau test statistics from permutation samples.}
+#' \item{permP1}{minp1 test statistics from permutation samples.}
+#' \item{permP2}{minp2 test statistics from permutation samples.}
+#' }
+#'
+#' @references Chiou, S.H., Qian, J., and Betensky, R.A. (2017).
+#' Permutation Test for General Dependent Truncation. \emph{Techreport}
+#'
+#' @export
+#' @importFrom BB spg
+#' @importFrom survival Surv survfit basehaz coxph
+#' @importFrom stats model.matrix pchisq pnorm rexp runif var
+#' @importFrom parallel detectCores parLapply makeCluster clusterExport stopCluster
+#' @keywords permDep
+#' @examples
+#' simDat <- function(n) {
+#'   k <- s <- 1
+#'   tt <- xx <- yy <- cc <- delta <- rep(-1, n)
+#'   while(k <= n){
+#'     tt[k] <- runif(1, 0, 3.5)
+#'     xx[k] <- 1.95 + 0.65 * (tt[k] - 1.25)^2 + rnorm(1, sd = 0.1)
+#'     cc[k] <- runif(1, 0, 10)
+#'     delta[k] <- (xx[k] <= cc[k])
+#'     yy[k] <- pmin(xx[k], cc[k])
+#'     s <- s + 1
+#'     if(tt[k] <= yy[k]) k = k+1
+#'   }
+#'  data.frame(list(trun = tt, obs = yy, delta = delta))
+#' }
+#'
+#' set.seed(123)
+#' dat_simDat(50)
+#' B <- 30
+#'
+#' ## Perform conditional permutation with Kendall's tau, minp1 and minp2
+#' set.seed(123)
+#' system.time(fit <- with(dat, permDep(trun, obs, B, delta, nc = 1)))
+#' fit
+permDep <- function(trun, obs, permSize, cens,
+                    sampling = c("conditional", "unconditional", "is.conditional", "is.unconditional"),
+                    kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
+                    nc = ceiling(detectCores() / 2), seed = NULL) {
+    sampling <- match.arg(sampling)
     n <- length(obs)
-    ## error check
-    if (!(sampling %in% c("cond", "ucond", "ucond1", "ucond2", "ucond3", "ucond4", "iscond", "isucond")))
-        stop("Invalid sampling method", call. = FALSE)
+    ## if (!(sampling %in% c("cond", "ucond", "ucond1", "ucond2",
+    ##                       "ucond3", "ucond4", "iscond", "isucond")))
     obsKen <- obsKenp <- obs1 <- obs2 <- obsP1 <- obsP2 <- obsTest1 <- obsTest2 <- NULL
     if (sum(kendallOnly, minp1Only, minp2Only) == 0) {
         tmp <- getKendall(trun, obs, cens)
@@ -313,24 +378,21 @@ permDep <- function(trun, obs, permSize, cens, sampling = "cond",
         permTest1 <- tmp[2,]
         permTest2 <- tmp[3,]
     }
-    perm.data.Ken <- perm.data.P1 <- perm.data.P2 <- NULL
-    if (!is.null(permKen) && all(!is.na(permKen))) 
-        perm.data.Ken <- getPerm(trun, obs, cens, sampling, seed[which.min(abs(permKen))])
     if (!is.null(permTest1) && all(!is.na(permTest1))) {
-        perm.data.P1 <- getPerm(trun, obs, cens, sampling, seed[which.min(permTest1)])
+        ## perm.data.P1 <- getPerm(trun, obs, cens, sampling, seed[which.min(permTest1)])
         permP1 <- 1 - pchisq(permTest1, df = 1)
     }
     if (!is.null(permTest2) && all(!is.na(permTest2))) {
-        perm.data.P2 <- getPerm(trun, obs, cens, sampling, seed[which.min(permTest2)])
+        ## perm.data.P2 <- getPerm(trun, obs, cens, sampling, seed[which.min(permTest2)])
         permP2 <- 1 - pchisq(permTest2, df = 1)
     }
     out <- list(obsKen = obsKen, obsKenp = obsKenp, obsP1 = obsP1, obsP2 = obsP2,
                 obsTest1 = obsTest1, obsTest2 = obsTest2,
-                permKen = permKen, permP1 = permP1, permP2 = permP2, permTest1 = permTest1, permTest2 = permTest2,
+                permKen = permKen, permP1 = permP1, permP2 = permP2,
+                permTest1 = permTest1, permTest2 = permTest2,
                 p.valueKen = ifelse(kendallOnly, (sum(abs(obsKen) < abs(permKen)) + 1)/(length(permKen) + 1), NA),
                 p.valueMinp1 = ifelse(minp1Only, (sum(obsP1 > permP1) + 1) / (length(permKen) + 1), NA),
                 p.valueMinp2 = ifelse(minp2Only, (sum(obsP2 > permP2) + 1) / (length(permKen) + 1), NA),
-                perm.data.Ken = perm.data.Ken, perm.data.P1 = perm.data.P1, perm.data.P2 = perm.data.P2,
                 kendallOnly = kendallOnly, minp1Only = minp1Only, minp2Only = minp2Only,
                 sampling = sampling, permSize = permSize, random.seed = seed)
     class(out) <- "permDep"
