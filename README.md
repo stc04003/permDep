@@ -5,8 +5,6 @@
 -----------
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-#### Regression models for recurrent event data
-
 ***permDep*** includes implementations of permutation approaches to test for quasi-independence.
 
 #### Installation
@@ -26,3 +24,6 @@ devtools::install_github("stc04003/permDep")
 ```
 
 #### References:
+
+-   Chiou, S.H., Qian, J., and Betensky, R.A. (2017). Permutation Test for General Dependent Truncation.
+-   Tsai, W.Y., (1990). Testing the Assumption of Independence of Truncation Time and Failure Time. 169--177.
