@@ -21,10 +21,10 @@ permDep(trun, obs, permSize, cens, sampling = c("conditional",
 \item{sampling}{a character string specifying the sampling method used in permutatin.
 The following are permitted:
 \describe{
-\item{conditional}{conditional permutation;}
-\item{uconditional}{unconditional permutation;}
-\item{is.conditional}{importance sampling version of conditional permutation;}
-\item{is.uconditional}{importance sampling version of unconditional permutation;}
+\item{\code{conditional}}{conditional permutation;}
+\item{\code{uconditional}}{unconditional permutation;}
+\item{\code{is.conditional}}{importance sampling version of conditional permutation;}
+\item{\code{is.uconditional}}{importance sampling version of unconditional permutation;}
 }}
 
 \item{kendallOnly, minp1Only, minp2Only}{optional values indicating which test statistics to be used.
@@ -69,7 +69,7 @@ simDat <- function(n) {
 }
 
 set.seed(123)
-dat_simDat(50)
+dat <- simDat(50)
 B <- 30
 
 ## Perform conditional permutation with Kendall's tau, minp1 and minp2

@@ -1,200 +1,3 @@
-mysample <- function(x, n) {
-    res <- vector("integer", length(x))
-    .C("mysampleC", as.integer(x), as.integer(n),
-       as.integer(length(x)), out = as.integer(res), PACKAGE = "permDep")$out
-}
-
-getKendall <- function(trun, obs, cens = NULL) {
-    if (is.null(cens)) cens <- rep(1, length(trun))
-    res <- vector("double", 3)
-    .C("kendallTrun", as.double(trun), as.double(obs), as.double(cens), as.integer(length(trun)), 
-       out = as.double(res), PACKAGE = "permDep")$out
-    
-}
-
-getKendallWgt <- function(trun, obs, cens = NULL, scX = NULL, scT = NULL) {
-    if (is.null(cens)) cens <- rep(1, length(trun))
-    if (is.null(scX)) scX <- rep(1, length(trun))
-    if (is.null(scT)) scT <- rep(1, length(trun))
-    res <- vector("double", 2)
-    .C("kendallTrunWgt", as.double(trun), as.double(obs), as.double(cens), as.integer(length(trun)),
-       as.double(scX), as.double(scT),
-       out = as.double(res), PACKAGE = "permDep")$out
-}
-
-getScore <- function(x, y) {
-    ## x is a covariate matrix
-    ## y is a survival object with left truncation, right censoring
-    n <- nrow(y)
-    nvar <- ncol(x)
-    start <- y[, 1]
-    stopp <- y[, 2]
-    event <- y[, 3]
-    sort.end <- order(-stopp, event) - 1L
-    sort.start <- order(-start) - 1L
-    newstrat <- n
-    offset <- rep(0, n)
-    weights <- rep(1, n)
-    maxiter <- 20
-    eps <- 1e-09
-    toler.chol <- 1.8e-12
-    storage.mode(y) <- storage.mode(x) <- "double"
-    storage.mode(offset) <- storage.mode(weights) <- "double"
-    storage.mode(newstrat) <- "integer"
-    agfit <- .Call("agfit4", y, x, newstrat, weights, offset, 
-                   as.double(rep(0, nvar)), sort.end, sort.start, as.integer(1),
-                   as.integer(maxiter), as.double(eps), as.double(toler.chol), as.integer(1))
-    agfit$sctest
-}
-
-## control <- list(eps = 1e-09, toler.chol = 1.818989e-12, iter.max = 20, toler.inf = 3.162278e-05, outer.max = 10)
-
-getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
-    ## trun (n by 1) is the left truncation times
-    ## obs (n by 1) is the observed failure time
-    ## cens (n by 1) is the censoring indicator: 1-failure, 0-censored
-    E <- min(10, round(0.2 * sum(cens)), round(0.2 * length(obs)))
-    n <- length(obs)
-    data0 <- data.frame(cbind(trun, obs, cens))[order(trun),]
-    survObj <- with(data0, Surv(trun, obs, cens))
-    log.rank.test <- log.rank.pval <- rep(NA, n)
-    if (minp1) {
-        for (j in E:(n-E)) {
-            group <- rep(1, n)
-            group[-(1:j)] <- 2
-            if (sum(table(data0$cens, group)["1",] < E) == 0) {
-                log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
-                if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
-                    break
-            }
-        }
-    }
-    if (!minp1) {
-        if (is.null(eps)) {
-            trun.tmp <- with(data0, trun[cens == 1])
-            ## eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[E])) ## interior has E events
-            eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[sum(cens) - E])) ## interior has sum(cens) - E events
-            ## trun.tmp <- trun[cens == 1]
-            ## trun.tmp <- trun.tmp[order(trun.tmp)]
-            ## eps <- max(sapply(E:(n-E), function(x) sort(abs(trun.tmp[x] - trun.tmp))[E]), na.rm = TRUE)
-            ## tmp <- obs[cens == 1]
-            ## eps <- max(diff(tmp[order(tmp)], E))
-            ## IQR(data0[, "trun"]) / 2
-        }
-        for (j in 1:n) {
-            group <- rep(1, n)
-            group[abs(data0[,"trun"] - data0[j,"trun"]) <= eps[j]] <- 2
-            if (length(unique(group)) > 1 & sum(table(data0$cens, group)["1",] < E) == 0) {
-                log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
-                if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
-                    break
-            }            
-        }
-    }
-    log.rank.pval <- 1 - pchisq(log.rank.test, df = 1)
-    ## print(sum(!is.na(log.rank.test)))
-    list(## MinPTime = MinPTime,
-         maxP = max(log.rank.pval, na.rm = TRUE),
-         minP = min(log.rank.pval, na.rm = TRUE),
-         maxTest = max(log.rank.test, na.rm = TRUE),
-         minTest = min(log.rank.test, na.rm = TRUE))
-}
-
-getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
-    n <- length(obs)
-    tt <- trun
-    if (!is.null(seed))
-        set.seed(seed)
-    if (sampling == "cond") {
-        obs.sort <- sort(obs)
-        cens.sort <- cens[order(obs)]
-        trun.sort <- sort(trun)
-        perm.trun.index <- rep(NULL, n)
-        m <- colSums((matrix(rep(obs.sort, each=n), n,n) - trun.sort) > 0)
-        for (j in 1:n){
-            set.1 <- perm.trun.index[1:j] ## truncation time being selected for X[1:(j-1)]
-            set.2 <- setdiff((1:m[j]), set.1)
-            perm.trun.index[j] <- ifelse(length(set.2) == 1, set.2, sample(set.2, 1))
-        }
-        perm.trun <- trun.sort[perm.trun.index]
-        out <- list(trun = perm.trun, obs = obs.sort, cens = cens.sort)
-    }
-    if (sampling == "ucond") {
-        perm.trun.index <- sample(1:n, n) 
-        perm.trun.0 <- trun[perm.trun.index]
-        out <- list(trun = perm.trun.0, obs = obs, cens = cens)
-    }
-    if (sampling == "ucond1") {
-        perm.trun.index <- sample(1:n, n) 
-        perm.trun.0 <- trun[perm.trun.index]
-        out <- list(trun = perm.trun.0, obs = obs, cens = cens)
-        out <- subset(data.frame(out), trun < obs & tt < trun)
-    }
-    if (sampling == "ucond2") {
-        perm.trun.index <- sample(1:n, n) 
-        perm.trun.0 <- trun[perm.trun.index]
-        out <- list(trun = perm.trun.0, obs = obs, cens = cens)
-        out$trun <- pmax(tt, out$trun)
-    }
-    if (sampling == "ucond3") {
-        perm.trun.index <- sample(1:n, n, replace = TRUE)
-        perm.trun.0 <- trun[perm.trun.index]
-        out <- list(trun = perm.trun.0, obs = obs, cens = cens)        
-    }
-    if (sampling == "ucond4") {
-        perm.trun.index <- unlist(lapply(sapply(1:n, function(x) which(trun[x] < obs)), function(y) ifelse(length(y) == 1, y, sample(y, 1))))
-        perm.trun.0 <- trun[perm.trun.index]
-        out <- list(trun = perm.trun.0, obs = obs, cens = cens)        
-    }
-    if (sampling == "iscond") {
-        A <- 1 * sapply(obs, function(x) x > trun)
-        trun <- trun[order(rowSums(A))]
-        for (maxit in 1:50) {
-            A2 <- A[order(rowSums(A)),]
-            sp <- NULL
-            for (i in 1:n) {
-                ## prob <- exp((n - colSums(A)) / (n - 1))
-                ## if (max(0, prob[sz], na.rm = TRUE) > 0 & sum(A2[i,] > 0) > 0)
-                if (sum(A2[i,] > 0) > 0) {
-                    sz <- which(A2[i,] > 0)
-                    prob <- exp((n - i + 1 - colSums(A2)) / (n - i))
-                    if (length(sz) == 1) 
-                        sp <- c(sp, sz)
-                    else
-                        sp <- c(sp, sample(sz, 1, TRUE, prob[sz]))
-                    } else break
-                A2[,sp] <- 0
-                A2[i,] <- 0
-            }
-            if (length(sp) == n)
-                break
-        }
-        ## print(maxit)
-        if (maxit == 50)
-            stop("Permutation sample not found", call. = FALSE)
-        out <- list(trun = trun, obs = obs[sp], cens = cens[sp])
-    }
-    if (sampling == "isucond") {
-        A <- 1 * sapply(obs, function(x) x > trun)
-        trun <- trun[order(rowSums(A))]
-        A <- A[order(rowSums(A)),]
-        sp <- NULL
-        for (i in 1:n) {
-            ## prob <- exp((n - colSums(A)) / (n - 1))
-            prob <- ifelse(colSums(A) != 0, exp((n - i + 1 - colSums(A)) / (n - i)), 0)
-            if (i == n)
-                sp <- c(sp, which(!(1:n %in% sp)))
-            else
-                sp <- c(sp, sample(1:n, 1, TRUE, prob))
-            A[,sp] <- 0
-            A[i,] <- 0            
-        }
-        out <- list(trun = trun, obs = obs[sp], cens = cens[sp])        
-    }
-    out <- subset(data.frame(out), trun < obs )
-    out[order(out[,1]),]
-}
-
 #' Permutation test for general dependent truncation
 #'
 #' Perform permutatoin test based on conditional or unconditional approach.
@@ -206,10 +9,10 @@ getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
 #' @param sampling a character string specifying the sampling method used in permutatin.
 #' The following are permitted:
 #' \describe{
-#' \item{conditional}{conditional permutation;}
-#' \item{uconditional}{unconditional permutation;}
-#' \item{is.conditional}{importance sampling version of conditional permutation;}
-#' \item{is.uconditional}{importance sampling version of unconditional permutation;}
+#' \item{\code{conditional}}{conditional permutation;}
+#' \item{\code{uconditional}}{unconditional permutation;}
+#' \item{\code{is.conditional}}{importance sampling version of conditional permutation;}
+#' \item{\code{is.uconditional}}{importance sampling version of unconditional permutation;}
 #' }
 #' @param kendallOnly,minp1Only,minp2Only optional values indicating which test statistics to be used.
 #' If all leave as \code{FALSE}, \code{permDep} will use all three test statistics in each permutation.
@@ -233,12 +36,14 @@ getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
 #' @references Chiou, S.H., Qian, J., and Betensky, R.A. (2017).
 #' Permutation Test for General Dependent Truncation. \emph{Techreport}
 #'
-#' @export
 #' @importFrom BB spg
 #' @importFrom survival Surv survfit basehaz coxph
 #' @importFrom stats model.matrix pchisq pnorm rexp runif var
 #' @importFrom parallel detectCores parLapply makeCluster clusterExport stopCluster
+#'
+#' @export
 #' @keywords permDep
+#' 
 #' @examples
 #' simDat <- function(n) {
 #'   k <- s <- 1
@@ -256,7 +61,7 @@ getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
 #' }
 #'
 #' set.seed(123)
-#' dat_simDat(50)
+#' dat <- simDat(50)
 #' B <- 30
 #'
 #' ## Perform conditional permutation with Kendall's tau, minp1 and minp2
@@ -399,26 +204,199 @@ permDep <- function(trun, obs, permSize, cens,
     return(out)
 }
 
-## gpdPv <- function(permT, obsT) {
-##     permT <- permT[order(permT, decreasing = TRUE)]
-##     ## default starting value is 250
-##     for (i in 0:24) {
-##         tmp <- permT[1:(250 - 10 * i)]
-##         ## Use bootstrap gof test, this depends on package goft
-##         ## or we can use ks.test but this require to estimate the mle first
-##         gofp <- gpd.test(tmp, 1000)$boot.test$p.value
-##         if (gofp > 0.05) {
-##             init <- c(sqrt(6 * var(tmp)) / pi, 0.1)
-##             x <- optim(init, gpdlik, dat = tmp - mean(permT[250 - 10 * i], permT[251 - 10 * i]),
-##                        hessian = TRUE, method = "Nelder-Mead")
-##             break
-##         }
-##         ## if(i == 25) {
-##         ##     tmp <- permT[1:300]
-##         ##     init <- c(sqrt(6 * var(tmp)) / pi, 0.1)
-##         ##     x <- optim(init, gpdlik, dat = tmp - mean(permT[300], permT[301]),
-##         ##                hessian = TRUE, method = "Nelder-Mead")
-##         ## }
-##     }
-##     (250 - 10 * i) * (1 - pgpd(obsT, -x$par[1], x$par[2])) / length(permT)
-## }
+mysample <- function(x, n) {
+    res <- vector("integer", length(x))
+    .C("mysampleC", as.integer(x), as.integer(n),
+       as.integer(length(x)), out = as.integer(res), PACKAGE = "permDep")$out
+}
+
+getKendall <- function(trun, obs, cens = NULL) {
+    if (is.null(cens)) cens <- rep(1, length(trun))
+    res <- vector("double", 3)
+    .C("kendallTrun", as.double(trun), as.double(obs), as.double(cens), as.integer(length(trun)), 
+       out = as.double(res), PACKAGE = "permDep")$out
+    
+}
+
+getKendallWgt <- function(trun, obs, cens = NULL, scX = NULL, scT = NULL) {
+    if (is.null(cens)) cens <- rep(1, length(trun))
+    if (is.null(scX)) scX <- rep(1, length(trun))
+    if (is.null(scT)) scT <- rep(1, length(trun))
+    res <- vector("double", 2)
+    .C("kendallTrunWgt", as.double(trun), as.double(obs), as.double(cens), as.integer(length(trun)),
+       as.double(scX), as.double(scT),
+       out = as.double(res), PACKAGE = "permDep")$out
+}
+
+getScore <- function(x, y) {
+    ## x is a covariate matrix
+    ## y is a survival object with left truncation, right censoring
+    n <- nrow(y)
+    nvar <- ncol(x)
+    start <- y[, 1]
+    stopp <- y[, 2]
+    event <- y[, 3]
+    sort.end <- order(-stopp, event) - 1L
+    sort.start <- order(-start) - 1L
+    newstrat <- n
+    offset <- rep(0, n)
+    weights <- rep(1, n)
+    maxiter <- 20
+    eps <- 1e-09
+    toler.chol <- 1.8e-12
+    storage.mode(y) <- storage.mode(x) <- "double"
+    storage.mode(offset) <- storage.mode(weights) <- "double"
+    storage.mode(newstrat) <- "integer"
+    agfit <- .Call("agfit4", y, x, newstrat, weights, offset, 
+                   as.double(rep(0, nvar)), sort.end, sort.start, as.integer(1),
+                   as.integer(maxiter), as.double(eps), as.double(toler.chol), as.integer(1))
+    agfit$sctest
+}
+
+## control <- list(eps = 1e-09, toler.chol = 1.818989e-12, iter.max = 20, toler.inf = 3.162278e-05, outer.max = 10)
+
+getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
+    ## trun (n by 1) is the left truncation times
+    ## obs (n by 1) is the observed failure time
+    ## cens (n by 1) is the censoring indicator: 1-failure, 0-censored
+    E <- min(10, round(0.2 * sum(cens)), round(0.2 * length(obs)))
+    n <- length(obs)
+    data0 <- data.frame(cbind(trun, obs, cens))[order(trun),]
+    survObj <- with(data0, Surv(trun, obs, cens))
+    log.rank.test <- log.rank.pval <- rep(NA, n)
+    if (minp1) {
+        for (j in E:(n-E)) {
+            group <- rep(1, n)
+            group[-(1:j)] <- 2
+            if (sum(table(data0$cens, group)["1",] < E) == 0) {
+                log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
+                if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
+                    break
+            }
+        }
+    }
+    if (!minp1) {
+        if (is.null(eps)) {
+            trun.tmp <- with(data0, trun[cens == 1])
+            ## eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[E])) ## interior has E events
+            eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[sum(cens) - E])) ## interior has sum(cens) - E events
+            ## trun.tmp <- trun[cens == 1]
+            ## trun.tmp <- trun.tmp[order(trun.tmp)]
+            ## eps <- max(sapply(E:(n-E), function(x) sort(abs(trun.tmp[x] - trun.tmp))[E]), na.rm = TRUE)
+            ## tmp <- obs[cens == 1]
+            ## eps <- max(diff(tmp[order(tmp)], E))
+            ## IQR(data0[, "trun"]) / 2
+        }
+        for (j in 1:n) {
+            group <- rep(1, n)
+            group[abs(data0[,"trun"] - data0[j,"trun"]) <= eps[j]] <- 2
+            if (length(unique(group)) > 1 & sum(table(data0$cens, group)["1",] < E) == 0) {
+                log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
+                if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
+                    break
+            }            
+        }
+    }
+    log.rank.pval <- 1 - pchisq(log.rank.test, df = 1)
+    ## print(sum(!is.na(log.rank.test)))
+    list(## MinPTime = MinPTime,
+         maxP = max(log.rank.pval, na.rm = TRUE),
+         minP = min(log.rank.pval, na.rm = TRUE),
+         maxTest = max(log.rank.test, na.rm = TRUE),
+         minTest = min(log.rank.test, na.rm = TRUE))
+}
+
+getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
+    n <- length(obs)
+    tt <- trun
+    if (!is.null(seed))
+        set.seed(seed)
+    if (sampling == "conditional") {
+        obs.sort <- sort(obs)
+        cens.sort <- cens[order(obs)]
+        trun.sort <- sort(trun)
+        perm.trun.index <- rep(NULL, n)
+        m <- colSums((matrix(rep(obs.sort, each=n), n,n) - trun.sort) > 0)
+        for (j in 1:n){
+            set.1 <- perm.trun.index[1:j] ## truncation time being selected for X[1:(j-1)]
+            set.2 <- setdiff((1:m[j]), set.1)
+            perm.trun.index[j] <- ifelse(length(set.2) == 1, set.2, sample(set.2, 1))
+        }
+        perm.trun <- trun.sort[perm.trun.index]
+        out <- list(trun = perm.trun, obs = obs.sort, cens = cens.sort)
+    }
+    if (sampling == "unconditional") {
+        perm.trun.index <- sample(1:n, n) 
+        perm.trun.0 <- trun[perm.trun.index]
+        out <- list(trun = perm.trun.0, obs = obs, cens = cens)
+    }
+    if (sampling == "unconditional1") {
+        perm.trun.index <- sample(1:n, n) 
+        perm.trun.0 <- trun[perm.trun.index]
+        out <- list(trun = perm.trun.0, obs = obs, cens = cens)
+        out <- subset(data.frame(out), trun < obs & tt < trun)
+    }
+    if (sampling == "unconditional2") {
+        perm.trun.index <- sample(1:n, n) 
+        perm.trun.0 <- trun[perm.trun.index]
+        out <- list(trun = perm.trun.0, obs = obs, cens = cens)
+        out$trun <- pmax(tt, out$trun)
+    }
+    if (sampling == "unconditional3") {
+        perm.trun.index <- sample(1:n, n, replace = TRUE)
+        perm.trun.0 <- trun[perm.trun.index]
+        out <- list(trun = perm.trun.0, obs = obs, cens = cens)        
+    }
+    if (sampling == "unconditional4") {
+        perm.trun.index <- unlist(lapply(sapply(1:n, function(x) which(trun[x] < obs)), function(y) ifelse(length(y) == 1, y, sample(y, 1))))
+        perm.trun.0 <- trun[perm.trun.index]
+        out <- list(trun = perm.trun.0, obs = obs, cens = cens)        
+    }
+    if (sampling == "is.conditional") {
+        A <- 1 * sapply(obs, function(x) x > trun)
+        trun <- trun[order(rowSums(A))]
+        for (maxit in 1:50) {
+            A2 <- A[order(rowSums(A)),]
+            sp <- NULL
+            for (i in 1:n) {
+                ## prob <- exp((n - colSums(A)) / (n - 1))
+                ## if (max(0, prob[sz], na.rm = TRUE) > 0 & sum(A2[i,] > 0) > 0)
+                if (sum(A2[i,] > 0) > 0) {
+                    sz <- which(A2[i,] > 0)
+                    prob <- exp((n - i + 1 - colSums(A2)) / (n - i))
+                    if (length(sz) == 1) 
+                        sp <- c(sp, sz)
+                    else
+                        sp <- c(sp, sample(sz, 1, TRUE, prob[sz]))
+                    } else break
+                A2[,sp] <- 0
+                A2[i,] <- 0
+            }
+            if (length(sp) == n)
+                break
+        }
+        ## print(maxit)
+        if (maxit == 50)
+            stop("Permutation sample not found", call. = FALSE)
+        out <- list(trun = trun, obs = obs[sp], cens = cens[sp])
+    }
+    if (sampling == "is.unconditional") {
+        A <- 1 * sapply(obs, function(x) x > trun)
+        trun <- trun[order(rowSums(A))]
+        A <- A[order(rowSums(A)),]
+        sp <- NULL
+        for (i in 1:n) {
+            ## prob <- exp((n - colSums(A)) / (n - 1))
+            prob <- ifelse(colSums(A) != 0, exp((n - i + 1 - colSums(A)) / (n - i)), 0)
+            if (i == n)
+                sp <- c(sp, which(!(1:n %in% sp)))
+            else
+                sp <- c(sp, sample(1:n, 1, TRUE, prob))
+            A[,sp] <- 0
+            A[i,] <- 0            
+        }
+        out <- list(trun = trun, obs = obs[sp], cens = cens[sp])        
+    }
+    out <- subset(data.frame(out), trun < obs )
+    out[order(out[,1]),]
+}

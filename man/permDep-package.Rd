@@ -27,3 +27,7 @@ Useful links:
 }
 
 }
+\author{
+\strong{Maintainer}: Sy Han (Steven) Chiou \email{schiou@utdallas}
+
+}
