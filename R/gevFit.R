@@ -47,8 +47,6 @@ my.gev.fit <-  function (xdat, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL,
     z$link <- deparse(substitute(c(mulink, siglink, shlink)))
     init <- c(muinit, siginit, shinit)
     gev.lik <- function(a) {
-      ## boundary
-      ## if (any(a > up)) return(NA)
       mu <- mulink(mumat %*% (a[1:npmu]))
       sc <- siglink(sigmat %*% (a[seq(npmu + 1, length = npsc)]))
       xi <- shlink(shmat %*% (a[seq(npmu + npsc + 1, length = npsh)]))
@@ -58,9 +56,6 @@ my.gev.fit <-  function (xdat, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL,
         return(10^6)
       sum(log(sc)) + sum(y^(-1/xi)) + sum(log(y) * (1/xi + 1))
     }
-    ## x <- optim(init, gev.lik, hessian = TRUE, method = method, 
-               ## control = list(maxit = maxit, ...))
-    ##           control = list(maxit=maxit), ...)
     x <- spg(init, gev.lik, control=list(maxit=maxit, trace = FALSE), quiet = TRUE, ...)
     z$conv <- x$convergence
     mu <- mulink(mumat %*% (x$par[1:npmu]))
@@ -72,8 +67,6 @@ my.gev.fit <-  function (xdat, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL,
         z$data <- -log(as.vector((1 + (xi * (xdat - mu))/sc)^(-1/xi)))
     }
     z$mle <- x$par
-    ## z$cov <- solve(x$hessian)
-    ## z$se <- sqrt(diag(z$cov))
     z$vals <- cbind(mu, sc, xi)
     if (show) {
         if (z$trans) 

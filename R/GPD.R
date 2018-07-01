@@ -1,7 +1,6 @@
 rgpd <- function(n, xi, beta) {
     if (xi == 0) {
         rexp(n, beta)
-        ## -beta * log(runif(n))
     } else {
         beta * (1 - runif(n) ^ xi) / xi
     }

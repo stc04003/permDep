@@ -37,6 +37,4 @@ print.permDep <- function(x, ...) {
         cat(paste(" p-value =", sprintf("%.4f", x$p.valueMinp2), "\n"))
     }    
     cat("\n")
-    ## cat("\nCall:\n")
-    ## print(x$Call)
 }

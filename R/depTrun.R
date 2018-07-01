@@ -229,8 +229,6 @@ getKendallWgt <- function(trun, obs, cens = NULL, scX = NULL, scT = NULL) {
 }
 
 getScore <- function(x, y) {
-    ## x is a covariate matrix
-    ## y is a survival object with left truncation, right censoring
     n <- nrow(y)
     nvar <- ncol(x)
     start <- y[, 1]
@@ -256,9 +254,6 @@ getScore <- function(x, y) {
 ## control <- list(eps = 1e-09, toler.chol = 1.818989e-12, iter.max = 20, toler.inf = 3.162278e-05, outer.max = 10)
 
 getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
-    ## trun (n by 1) is the left truncation times
-    ## obs (n by 1) is the observed failure time
-    ## cens (n by 1) is the censoring indicator: 1-failure, 0-censored
     E <- min(10, round(0.2 * sum(cens)), round(0.2 * length(obs)))
     n <- length(obs)
     data0 <- data.frame(cbind(trun, obs, cens))[order(trun),]
@@ -359,15 +354,11 @@ getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
             A2 <- A[order(rowSums(A)),]
             sp <- NULL
             for (i in 1:n) {
-                ## prob <- exp((n - colSums(A)) / (n - 1))
-                ## if (max(0, prob[sz], na.rm = TRUE) > 0 & sum(A2[i,] > 0) > 0)
                 if (sum(A2[i,] > 0) > 0) {
                     sz <- which(A2[i,] > 0)
                     prob <- exp((n - i + 1 - colSums(A2)) / (n - i))
-                    if (length(sz) == 1) 
-                        sp <- c(sp, sz)
-                    else
-                        sp <- c(sp, sample(sz, 1, TRUE, prob[sz]))
+                    if (length(sz) == 1) sp <- c(sp, sz)
+                    else sp <- c(sp, sample(sz, 1, TRUE, prob[sz]))
                     } else break
                 A2[,sp] <- 0
                 A2[i,] <- 0
@@ -386,12 +377,9 @@ getPerm <- function(trun, obs, cens, sampling, seed = NULL) {
         A <- A[order(rowSums(A)),]
         sp <- NULL
         for (i in 1:n) {
-            ## prob <- exp((n - colSums(A)) / (n - 1))
             prob <- ifelse(colSums(A) != 0, exp((n - i + 1 - colSums(A)) / (n - i)), 0)
-            if (i == n)
-                sp <- c(sp, which(!(1:n %in% sp)))
-            else
-                sp <- c(sp, sample(1:n, 1, TRUE, prob))
+            if (i == n) sp <- c(sp, which(!(1:n %in% sp)))
+            else sp <- c(sp, sample(1:n, 1, TRUE, prob))
             A[,sp] <- 0
             A[i,] <- 0            
         }
