@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ```
 
 #### Regression models for recurrent event data
-***permDep*** implements a collection of regression models for recurrent event process and failure time.
+***permDep*** includes implementations of permutation approaches to test for quasi-independence.
 
 #### Installation
 
