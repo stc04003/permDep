@@ -1,0 +1,7 @@
+useDynLib(permDep)
+importFrom("BB", spg)
+importFrom("survival", Surv, survfit, basehaz, coxph)
+importFrom("stats", "model.matrix", "pchisq", "pnorm", "rexp", "runif","var")
+importFrom("parallel", detectCores, parLapply, makeCluster, clusterExport, stopCluster)
+export(permDep)
+S3method(print, permDep)
