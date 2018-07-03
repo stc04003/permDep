@@ -5,7 +5,7 @@
 -----------
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-***permDep*** includes implementations of permutation approaches to test for quasi-independence.
+***permDep*** implements permutation approaches to test for quasi-independence in left-truncated right-censored survival data.
 
 #### Installation
 
