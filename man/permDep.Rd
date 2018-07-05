@@ -18,7 +18,7 @@ permDep(trun, obs, permSize, cens, sampling = c("conditional",
 
 \item{cens}{is the status indicator; 0 = censored, 1 = event.}
 
-\item{sampling}{a character string specifying the sampling method used in permutatin.
+\item{sampling}{a character string specifying the sampling method used in permutation.
 The following are permitted:
 \describe{
 \item{\code{conditional}}{conditional permutation;}
@@ -30,7 +30,7 @@ The following are permitted:
 \item{kendallOnly, minp1Only, minp2Only}{optional values indicating which test statistics to be used.
 If all leave as \code{FALSE}, \code{permDep} will use all three test statistics in each permutation.}
 
-\item{nc}{is the number of cores used in permutatin.
+\item{nc}{is the number of cores used in permutation.
 When \code{nc > 1}, permutation is carried out with parallel computing.}
 
 \item{seed}{an optional vector containing random seeds to be used to generate permutation samples.
@@ -50,7 +50,7 @@ A list containing output with the following components:
 }
 }
 \description{
-Perform permutatoin test based on conditional or unconditional approach.
+Perform permutation test based on conditional or unconditional approach.
 }
 \examples{
 simDat <- function(n) {
@@ -79,6 +79,6 @@ fit
 }
 \references{
 Chiou, S.H., Qian, J., and Betensky, R.A. (2017).
-Permutation Test for General Dependent Truncation. \emph{Techreport}
+Permutation Test for General Dependent Truncation. \emph{Tech-report}
 }
 \keyword{permDep}
