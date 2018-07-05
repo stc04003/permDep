@@ -70,7 +70,7 @@ simDat <- function(n) {
 
 set.seed(123)
 dat <- simDat(50)
-B <- 30
+B <- 20
 
 ## Perform conditional permutation with Kendall's tau, minp1 and minp2
 set.seed(123)
