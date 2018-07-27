@@ -1,12 +1,12 @@
 #' Permutation test for general dependent truncation
 #'
-#' Perform permutatoin test based on conditional or unconditional approach.
+#' Perform permutation test based on conditional or unconditional approach.
 #'
 #' @param trun is the left truncation time.
 #' @param obs is the observed failure time.
 #' @param permSize is the number of permutations.
 #' @param cens is the status indicator; 0 = censored, 1 = event.
-#' @param sampling a character string specifying the sampling method used in permutatin.
+#' @param sampling a character string specifying the sampling method used in permutation.
 #' The following are permitted:
 #' \describe{
 #' \item{\code{conditional}}{conditional permutation;}
@@ -16,7 +16,7 @@
 #' }
 #' @param kendallOnly,minp1Only,minp2Only optional values indicating which test statistics to be used.
 #' If all leave as \code{FALSE}, \code{permDep} will use all three test statistics in each permutation.
-#' @param nc is the number of cores used in permutatin.
+#' @param nc is the number of cores used in permutation.
 #' When \code{nc > 1}, permutation is carried out with parallel computing.
 #' @param seed an optional vector containing random seeds to be used to generate permutation samples.
 #' Random seeds will be used when left unspecified.
@@ -34,7 +34,7 @@
 #' }
 #'
 #' @references Chiou, S.H., Qian, J., and Betensky, R.A. (2017).
-#' Permutation Test for General Dependent Truncation. \emph{Techreport}
+#' Permutation Test for General Dependent Truncation. \emph{Tech-report}
 #'
 #' @importFrom BB spg
 #' @importFrom survival Surv survfit basehaz coxph
@@ -62,7 +62,7 @@
 #'
 #' set.seed(123)
 #' dat <- simDat(50)
-#' B <- 30
+#' B <- 20
 #'
 #' ## Perform conditional permutation with Kendall's tau, minp1 and minp2
 #' set.seed(123)
