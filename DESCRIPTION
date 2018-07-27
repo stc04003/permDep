@@ -12,6 +12,6 @@ URL: http://github.com/stc04003/permDep
 BugReports: http://github.com/stc04003/permDep/issues
 Imports: BB, survival, parallel
 Author: Sy Han Chiou [aut, cre]
-Maintainer: Sy Han Chiou <schiou@utdallas>
+Maintainer: Sy Han Chiou <schiou@utdallas.edu>
 NeedsCompilation: yes
 Packaged: 2018-07-01 20:09:29 UTC; schiou
