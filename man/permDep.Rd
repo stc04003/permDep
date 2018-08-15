@@ -5,9 +5,9 @@
 \title{Permutation test for general dependent truncation}
 \usage{
 permDep(trun, obs, permSize, cens, sampling = c("conditional",
-  "unconditional", "is.conditional", "is.unconditional"), kendallOnly = FALSE,
-  minp1Only = FALSE, minp2Only = FALSE, nc = ceiling(detectCores()/2),
-  seed = NULL)
+  "unconditional", "is.conditional", "is.unconditional"),
+  kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
+  nc = ceiling(detectCores()/2), seed = NULL)
 }
 \arguments{
 \item{trun}{is the left truncation time.}

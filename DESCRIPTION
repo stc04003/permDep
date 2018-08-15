@@ -7,16 +7,9 @@ Depends: R (>= 3.4.0)
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 URL: http://github.com/stc04003/permDep
 BugReports: http://github.com/stc04003/permDep/issues
 Imports: BB, survival, parallel
-<<<<<<< HEAD
 Author: Sy Han Chiou [aut, cre]
 Maintainer: Sy Han Chiou <schiou@utdallas.edu>
-=======
-Author: Sy Han (Steven) Chiou [aut, cre]
-Maintainer: Sy Han (Steven) Chiou <schiou@utdallas.edu>
->>>>>>> afb56811b43c1377299d054f4a362e549893f428
-NeedsCompilation: yes
-Packaged: 2018-07-01 20:09:29 UTC; schiou
