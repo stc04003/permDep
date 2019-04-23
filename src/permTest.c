@@ -17,13 +17,12 @@ void mysampleC(int *x, int *n, int *N,
       m += 1;
     }
   }
-  out;
 }
 
 void kendallTrun(double *x, double *y, double *Delta, int *n, 
 		 // output
 		 double *out) {
-  int i, j, k;
+  int i, j;
   double *bb = Calloc(*n * (*n - 1), double);
   double M = 0.0;
   double v = 0.0;
@@ -59,16 +58,14 @@ void kendallTrun(double *x, double *y, double *Delta, int *n,
   out[1] = 4 * v / (mu * mu * *n);
   out[2] = M;
   Free(bb);
-  out;
 }
 
 void kendallTrunWgt(double *x, double *y, double *Delta, int *n, double *scX, double *scT, 
 		    // output
 		    double *out) {
   double h12 = 0.0;
-  int i, j, k;
+  int i, j;
   double M = 0.0;
-  double n2 = 0.0;
   double tau;
   double tmp;
   double wgt;
@@ -87,6 +84,5 @@ void kendallTrunWgt(double *x, double *y, double *Delta, int *n, double *scX, do
   tau = h12 / M;
   out[0] = tau;
   out[1] = M;
-  out;
 }
 

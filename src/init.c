@@ -1,9 +1,11 @@
-// RegisteringDynamic Symbols
-
 #include <R.h>
 #include <Rinternals.h>
-#include <R_ext/Rdynload.h>
 #include <stdlib.h> // for NULL
+#include <R_ext/Rdynload.h>
+
+/* FIXME: 
+   Check these declarations against the C/Fortran source code.
+*/
 
 /* .C calls */
 extern void kendallTrun(void *, void *, void *, void *, void *);
