@@ -281,6 +281,7 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
             ## tmp <- obs[cens == 1]
             ## eps <- max(diff(tmp[order(tmp)], E))
             ## IQR(data0[, "trun"]) / 2
+            eps <- rep(min(eps), length(eps))
         }
         for (j in 1:n) {
             group <- rep(1, n)
