@@ -273,14 +273,9 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
     if (!minp1) {
         if (is.null(eps)) {
             trun.tmp <- with(data0, trun[cens == 1])
-            ## eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[E])) ## interior has E events
-            eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[sum(cens) - E])) ## interior has sum(cens) - E events
-            ## trun.tmp <- trun[cens == 1]
-            ## trun.tmp <- trun.tmp[order(trun.tmp)]
-            ## eps <- max(sapply(E:(n-E), function(x) sort(abs(trun.tmp[x] - trun.tmp))[E]), na.rm = TRUE)
-            ## tmp <- obs[cens == 1]
-            ## eps <- max(diff(tmp[order(tmp)], E))
-            ## IQR(data0[, "trun"]) / 2
+            eps1 <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[sum(cens) - E]))
+            eps2 <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[E]))
+            eps <- pmax(eps1, eps2)
             eps <- rep(min(eps), length(eps))
         }
         for (j in 1:n) {
