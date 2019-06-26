@@ -294,10 +294,14 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
                 log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
                 if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
                     break
-            }            
+            }
+            if (length(unique(group)) == 1 || sum(table(data0$cens, group)["1",] < E) > 0) 
+                log.rank.test[j] <- -999
         }
     }
-    log.rank.pval <- 1 - pchisq(log.rank.test, df = 1)
+    if (max(log.rank.test, na.rm = TRUE) < -990)
+        stop("minp.eps yields invalid insufficient intervals.")
+    else log.rank.pval <- 1 - pchisq(log.rank.test, df = 1)
     ## print(sum(!is.na(log.rank.test)))
     list(## MinPTime = MinPTime,
          maxP = max(log.rank.pval, na.rm = TRUE),
