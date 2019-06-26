@@ -20,7 +20,9 @@
 #' When \code{nc > 1}, permutation is carried out with parallel computing.
 #' @param seed an optional vector containing random seeds to be used to generate permutation samples.
 #' Random seeds will be used when left unspecified.
-#'
+#' @param minp.eps an optional value indicating the width of the intervals used in minp2 procedure.
+#' When not specified, auto selection using the algorithm outlined in Chiou (2018) will be used. 
+#' 
 #' @return A list containing output with the following components:
 #' \describe{
 #' \item{obsKen}{the observed p-value using Kendall's tau test statistic.}
@@ -33,9 +35,10 @@
 #' \item{permP2}{minp2 test statistics from permutation samples.}
 #' }
 #'
-#' @references Chiou, S.H., Qian, J., and Betensky, R.A. (2017).
-#' Permutation Test for General Dependent Truncation. \emph{Tech-report}
-#'
+#' @references Chiou, S.H., Qian, J., and Betensky, R.A. (2018).
+#' Permutation Test for General Dependent Truncation.
+#' \emph{Computational Statistics \& Data Analysis},128, p308--324.
+#' 
 #' @importFrom BB spg
 #' @importFrom survival Surv survfit basehaz coxph
 #' @importFrom stats model.matrix pchisq pnorm rexp runif var
@@ -71,7 +74,8 @@
 permDep <- function(trun, obs, permSize, cens,
                     sampling = c("conditional", "unconditional", "is.conditional", "is.unconditional"),
                     kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
-                    nc = ceiling(detectCores() / 2), seed = NULL) {
+                    nc = ceiling(detectCores() / 2), seed = NULL,
+                    minp.eps = NULL) {
     sampling <- match.arg(sampling)
     n <- length(obs)
     ## if (!(sampling %in% c("cond", "ucond", "ucond1", "ucond2",
@@ -81,10 +85,10 @@ permDep <- function(trun, obs, permSize, cens,
         tmp <- getKendall(trun, obs, cens)
         obsKen <- tmp[1]
         obsKenp <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
-        obs1 <- getMinP(trun, obs, cens)
+        obs1 <- getMinP(trun, obs, cens, eps = minp.eps)
         obsP1 <- obs1$minP
         obsTest1 <- obs1$maxTest
-        obs2 <- getMinP(trun, obs, cens, minp1 = FALSE)
+        obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps)
         obsP2 <- obs2$minP
         obsTest2 <- obs2$maxTest
     }
@@ -95,12 +99,12 @@ permDep <- function(trun, obs, permSize, cens,
             obsKenp <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
         }
         if (minp1Only) {        
-            obs1 <- getMinP(trun, obs, cens)
+            obs1 <- getMinP(trun, obs, cens, eps = minp.eps)
             obsP1 <- obs1$minP
             obsTest1 <- obs1$maxTest
         }
         if (minp2Only) {
-            obs2 <- getMinP(trun, obs, cens, minp1 = FALSE)
+            obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps)
             obsP2 <- obs2$minP
             obsTest2 <- obs2$maxTest
         }
@@ -118,11 +122,12 @@ permDep <- function(trun, obs, permSize, cens,
                     permKenp[i] <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
                 }
                 if (minp1Only) {
-                    p1fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens)
+                    p1fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, eps = minp.eps)
                     permTest1[i] <- p1fit$maxTest
                 }
                 if (minp2Only) {
-                    p2fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, minp1 = FALSE)
+                    p2fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens,
+                                     minp1 = FALSE, eps = minp.eps)
                     permTest2[i] <- p2fit$maxTest
                 }
             }
@@ -131,10 +136,10 @@ permDep <- function(trun, obs, permSize, cens,
                 tmp <- getKendall(perm.data$trun, perm.data$obs, perm.data$cens)
                 permKen[i] <- tmp[1]
                 permKenp[i] <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
-                p1fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens)
-                                 ## obsTest = ifelse(surv, NA, obsTest1))
-                p2fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, minp1 = FALSE)
-                                 ## obsTest = ifelse(surv, NA, obsTest2), minp1 = FALSE)  
+                p1fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, eps = minp.eps)
+                ## obsTest = ifelse(surv, NA, obsTest1))
+                p2fit <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, minp1 = FALSE, eps = minp.eps)
+                ## obsTest = ifelse(surv, NA, obsTest2), minp1 = FALSE)  
                 permTest1[i] <- p1fit$maxTest
                 permTest2[i] <- p2fit$maxTest
                 ## MinP1Time[i,] <- p1fit$MinPTime
@@ -145,7 +150,8 @@ permDep <- function(trun, obs, permSize, cens,
     if (nc > 1) {
         permKen <- permP1 <- permP2 <- permTest1 <- permTest2<- rep(NULL, permSize)
         cl <- makeCluster(nc)
-        clusterExport(cl = cl, varlist=c("trun", "obs", "cens", "sampling", "seed", "obsTest1", "obsTest2"),
+        clusterExport(cl = cl, varlist=c("trun", "obs", "cens", "sampling", "seed", "obsTest1",
+                                         "obsTest2", "minp.eps"),
                       envir = environment())
         clusterExport(cl = cl, varlist=c("getPerm", "getKendall", "getMinP"), envir = environment())
         out <- unlist(parLapply(cl, 1:permSize, function(x) {
@@ -155,17 +161,19 @@ permDep <- function(trun, obs, permSize, cens,
                 if (kendallOnly)
                     tmpK <- getKendall(perm.data$trun, perm.data$obs, perm.data$cens)[1]
                 if (minp1Only) 
-                    tmpP1 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens)
+                    tmpP1 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, eps = minp.eps)
                 if (minp2Only)                                     
-                    tmpP2 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, minp1 = FALSE)
+                    tmpP2 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens,
+                                     minp1 = FALSE, eps = minp.eps)
                 return(c(tmpK, tmpP1$maxTest, tmpP2$maxTest))
             }
             if (sum(kendallOnly, minp1Only, minp2Only) == 0) {
                 kendallOnly <- minp1Only <- minp2Only <- TRUE
                 tmpK <- getKendall(perm.data$trun, perm.data$obs, perm.data$cens)[1]
-                tmpP1 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens)
+                tmpP1 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, eps = minp.eps)
                 ## obsTest = ifelse(surv, 1e5, obsTest1))
-                tmpP2 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens, minp1 = FALSE)  
+                tmpP2 <- getMinP(perm.data$trun, perm.data$obs, perm.data$cens,
+                                 minp1 = FALSE, eps = minp.eps)  
                 ## obsTest = ifelse(surv, 1e5, obsTest2), minp1 = FALSE)  
                 return(c(tmpK, tmpP1$maxTest, tmpP2$maxTest))
             }}))

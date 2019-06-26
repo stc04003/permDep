@@ -7,7 +7,7 @@
 permDep(trun, obs, permSize, cens, sampling = c("conditional",
   "unconditional", "is.conditional", "is.unconditional"),
   kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
-  nc = ceiling(detectCores()/2), seed = NULL)
+  nc = ceiling(detectCores()/2), seed = NULL, minp.eps = NULL)
 }
 \arguments{
 \item{trun}{is the left truncation time.}
@@ -35,6 +35,9 @@ When \code{nc > 1}, permutation is carried out with parallel computing.}
 
 \item{seed}{an optional vector containing random seeds to be used to generate permutation samples.
 Random seeds will be used when left unspecified.}
+
+\item{minp.eps}{an optional value indicating the width of the intervals used in minp2 procedure.
+When not specified, auto selection using the algorithm outlined in Chiou (2018) will be used.}
 }
 \value{
 A list containing output with the following components:
@@ -78,7 +81,8 @@ system.time(fit <- with(dat, permDep(trun, obs, B, delta, nc = 1)))
 fit
 }
 \references{
-Chiou, S.H., Qian, J., and Betensky, R.A. (2017).
-Permutation Test for General Dependent Truncation. \emph{Tech-report}
+Chiou, S.H., Qian, J., and Betensky, R.A. (2018).
+Permutation Test for General Dependent Truncation.
+\emph{Computational Statistics \& Data Analysis},128, p308--324.
 }
 \keyword{permDep}
