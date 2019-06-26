@@ -286,6 +286,7 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
             eps <- pmax(eps1, eps2)
             eps <- rep(min(eps), length(eps))
         }
+        if (length(eps) <= 1) eps <- rep(eps, n)
         for (j in 1:n) {
             group <- rep(1, n)
             group[abs(data0[,"trun"] - data0[j,"trun"]) <= eps[j]] <- 2
