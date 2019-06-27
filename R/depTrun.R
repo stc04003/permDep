@@ -22,6 +22,8 @@
 #' Random seeds will be used when left unspecified.
 #' @param minp.eps an optional value indicating the width of the intervals used in minp2 procedure.
 #' When not specified, auto selection using the algorithm outlined in Chiou (2018) will be used. 
+#' @param plot.int an optional logical value indicating whether an animated scaterplot will be produced
+#' to how the minp intervals are choosen for the observed data. 
 #' 
 #' @return A list containing output with the following components:
 #' \describe{
@@ -75,22 +77,24 @@ permDep <- function(trun, obs, permSize, cens,
                     sampling = c("conditional", "unconditional", "is.conditional", "is.unconditional"),
                     kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
                     nc = ceiling(detectCores() / 2), seed = NULL,
-                    minp.eps = NULL) {
+                    minp.eps = NULL, plot.int = FALSE) {
     sampling <- match.arg(sampling)
     n <- length(obs)
     ## if (!(sampling %in% c("cond", "ucond", "ucond1", "ucond2",
     ##                       "ucond3", "ucond4", "iscond", "isucond")))
-    obsKen <- obsKenp <- obs1 <- obs2 <- obsP1 <- obsP2 <- obsTest1 <- obsTest2 <- NULL
+    obsKen <- obsKenp <- obs1 <- obs2 <- obsP1 <- obsP2 <- obsTest1 <- obsTest2 <- p1 <- p2 <- NULL
     if (sum(kendallOnly, minp1Only, minp2Only) == 0) {
         tmp <- getKendall(trun, obs, cens)
         obsKen <- tmp[1]
         obsKenp <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
-        obs1 <- getMinP(trun, obs, cens, eps = minp.eps)
+        obs1 <- getMinP(trun, obs, cens, eps = minp.eps, plotInt = plot.int)
         obsP1 <- obs1$minP
         obsTest1 <- obs1$maxTest
-        obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps)
+        p1 <- obs1$p
+        obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps, plotInt = plot.int)
         obsP2 <- obs2$minP
         obsTest2 <- obs2$maxTest
+        p2 <- obs2$p
     }
     if (sum(kendallOnly, minp1Only, minp2Only) > 0) {
         if (kendallOnly) {
@@ -99,14 +103,16 @@ permDep <- function(trun, obs, permSize, cens,
             obsKenp <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
         }
         if (minp1Only) {        
-            obs1 <- getMinP(trun, obs, cens, eps = minp.eps)
+            obs1 <- getMinP(trun, obs, cens, eps = minp.eps, plotInt = plot.int)
             obsP1 <- obs1$minP
             obsTest1 <- obs1$maxTest
+            p1 <- obs1$p
         }
         if (minp2Only) {
-            obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps)
+            obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps, plotInt = plot.int)
             obsP2 <- obs2$minP
             obsTest2 <- obs2$maxTest
+            p2 <- obs2$p
         }
     }
     MinP1Time <- MinP2Time <- matrix(NA, permSize, length(trun))
@@ -207,7 +213,7 @@ permDep <- function(trun, obs, permSize, cens,
                 p.valueMinp1 = ifelse(minp1Only, (sum(obsP1 > permP1) + 1) / (length(permKen) + 1), NA),
                 p.valueMinp2 = ifelse(minp2Only, (sum(obsP2 > permP2) + 1) / (length(permKen) + 1), NA),
                 kendallOnly = kendallOnly, minp1Only = minp1Only, minp2Only = minp2Only,
-                sampling = sampling, permSize = permSize, random.seed = seed)
+                sampling = sampling, permSize = permSize, random.seed = seed, p1 = p1, p2 = p2)
     class(out) <- "permDep"
     return(out)
 }
@@ -261,9 +267,14 @@ getScore <- function(x, y) {
 
 ## control <- list(eps = 1e-09, toler.chol = 1.818989e-12, iter.max = 20, toler.inf = 3.162278e-05, outer.max = 10)
 
-getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
+#' @importFrom ggplot2 ggplot geom_point scale_color_manual labs xlab ylab aes
+#' @importFrom gganimate transition_time animate
+#' 
+getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
+                    eps = NULL, plotInt = FALSE) {
     E <- min(10, round(0.2 * sum(cens)), round(0.2 * length(obs)))
     n <- length(obs)
+    p <- NULL
     data0 <- data.frame(cbind(trun, obs, cens))[order(trun),]
     survObj <- with(data0, Surv(trun, obs, cens))
     log.rank.test <- log.rank.pval <- rep(NA, n)
@@ -278,6 +289,7 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
             }
         }
     }
+    if (plotInt) groups <- NULL
     if (!minp1) {
         if (is.null(eps)) {
             trun.tmp <- with(data0, trun[cens == 1])
@@ -290,24 +302,41 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE, eps = NULL) {
         for (j in 1:n) {
             group <- rep(1, n)
             group[abs(data0[,"trun"] - data0[j,"trun"]) <= eps[j]] <- 2
+            if (plotInt) groups[[j]] <- group
             if (length(unique(group)) > 1 & sum(table(data0$cens, group)["1",] < E) == 0) {
-                log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
+                log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)                
                 if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
                     break
             }
-            if (length(unique(group)) == 1 || sum(table(data0$cens, group)["1",] < E) > 0) 
+            if (length(unique(group)) == 1 || sum(table(data0$cens, group)["1",] < E) > 0) {
                 log.rank.test[j] <- -999
+                if (plotInt) groups[[j]] <- rep(NA, n)
+            }
         }
     }
     if (max(log.rank.test, na.rm = TRUE) < -990)
         stop("minp.eps yields invalid insufficient intervals.")
     else log.rank.pval <- 1 - pchisq(log.rank.test, df = 1)
-    ## print(sum(!is.na(log.rank.test)))
-    list(## MinPTime = MinPTime,
-         maxP = max(log.rank.pval, na.rm = TRUE),
+    if (plotInt) {        
+        dat <- data.frame(trun = rep(data0$trun,n), 
+                          obs = rep(data0$obs, n),
+                          grp = unlist(groups),
+                          stp = rep(1:n, each = n))
+        dat <- dat[complete.cases(dat),]
+        p <- ggplot(dat, aes(x = trun, y = obs, color = factor(grp))) +
+            geom_point(show.legend = FALSE, alpha = 0.7, cex = 2) +
+            scale_color_manual(breaks = c("1", "2"), values = c("black", "red")) +
+            transition_time(stp) +
+            labs(title = "Cutpoint: {frame_time}") +
+            xlab("Truncation time") +
+            ylab("Survival time")
+        print(animate(p, start_pause = 10, end_pause = 10))
+    }
+    list(maxP = max(log.rank.pval, na.rm = TRUE),
          minP = min(log.rank.pval, na.rm = TRUE),
          maxTest = max(log.rank.test, na.rm = TRUE),
-         minTest = min(log.rank.test, na.rm = TRUE))
+         minTest = min(log.rank.test, na.rm = TRUE),
+         p = p)
 }
 
 getPerm <- function(trun, obs, cens, sampling, seed = NULL) {

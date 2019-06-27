@@ -7,7 +7,8 @@
 permDep(trun, obs, permSize, cens, sampling = c("conditional",
   "unconditional", "is.conditional", "is.unconditional"),
   kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
-  nc = ceiling(detectCores()/2), seed = NULL, minp.eps = NULL)
+  nc = ceiling(detectCores()/2), seed = NULL, minp.eps = NULL,
+  plot.int = FALSE)
 }
 \arguments{
 \item{trun}{is the left truncation time.}
@@ -38,6 +39,9 @@ Random seeds will be used when left unspecified.}
 
 \item{minp.eps}{an optional value indicating the width of the intervals used in minp2 procedure.
 When not specified, auto selection using the algorithm outlined in Chiou (2018) will be used.}
+
+\item{plot.int}{an optional logical value indicating whether an animated scaterplot will be produced
+to how the minp intervals are choosen for the observed data.}
 }
 \value{
 A list containing output with the following components:
