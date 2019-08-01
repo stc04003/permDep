@@ -21,7 +21,15 @@
 #' @param seed an optional vector containing random seeds to be used to generate permutation samples.
 #' Random seeds will be used when left unspecified.
 #' @param minp.eps an optional value indicating the width of the intervals used in minp2 procedure.
-#' When not specified, auto selection using the algorithm outlined in Chiou (2018) will be used. 
+#' The following input are allowed:
+#' \describe{
+#' \item{a single numerical number}{sets the common width for all intervals}
+#' \item{a numerical vector}{the length of the vector needs to be a sub-multiple or
+#' multiple of the number of uncensored events. This input is useful for user specified widths.}
+#' \item{a character string}{This option can be either "in" or "out", which require the minimum number
+#' of uncensored events inside or outside of each interval, respectively.}
+#' \item{NULL}{automatic selection using the algorithm outlined in Chiou (2018) will be used. }
+#' }
 #' @param plot.int an optional logical value indicating whether an animated scaterplot will be produced
 #' to how the minp intervals are choosen for the observed data. 
 #' 
@@ -291,14 +299,22 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
     }
     if (plotInt) groups <- NULL
     if (!minp1) {
+        trun.tmp <- with(data0, trun[cens == 1])
         if (is.null(eps)) {
-            trun.tmp <- with(data0, trun[cens == 1])
             eps1 <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[sum(cens) - E]))
             eps2 <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[E]))
             eps <- pmax(eps1, eps2)
             eps <- rep(min(eps), length(eps))
         }
-        if (length(eps) <= 1) eps <- rep(eps, n)
+        if ((eps == "in")[1])  ## interior has at least sum(cens) - E events
+            eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[sum(cens) - E]))
+        if ((eps == "out")[1])  ## interior has at least E events
+            eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[E])) ## interior has E events
+        if (length(eps) != n) {
+            if (n %% length(eps) > 0)
+                print("eps length is not a sub-multiple or multiple of the number of uncensored events.")
+            eps <- rep(eps, n)[1:n]
+        }
         for (j in 1:n) {
             group <- rep(1, n)
             group[abs(data0[,"trun"] - data0[j,"trun"]) <= eps[j]] <- 2
