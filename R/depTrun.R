@@ -23,12 +23,12 @@
 #' @param minp.eps an optional value indicating the width of the intervals used in minp2 procedure.
 #' The following input are allowed:
 #' \describe{
-#' \item{a single numerical number}{sets the common width for all intervals}
-#' \item{a numerical vector}{the length of the vector needs to be a sub-multiple or
+#' \item{a single numerical number: }{sets the common width for all intervals}
+#' \item{a numerical vector: }{the length of the vector needs to be a sub-multiple or
 #' multiple of the number of uncensored events. This input is useful for user specified widths.}
-#' \item{a character string}{This option can be either "in" or "out", which require the minimum number
+#' \item{a character string: }{This option can be either "in" or "out", which require the minimum number
 #' of uncensored events inside or outside of each interval, respectively.}
-#' \item{NULL}{automatic selection using the algorithm outlined in Chiou (2018) will be used. }
+#' \item{NULL: }{automatic selection using the algorithm outlined in Chiou (2018) will be used. }
 #' }
 #' @param plot.int an optional logical value indicating whether an animated scaterplot will be produced
 #' to how the minp intervals are choosen for the observed data. 
