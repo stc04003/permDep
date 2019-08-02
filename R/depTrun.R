@@ -1,3 +1,5 @@
+globalVariables(c("grp", "stp")) ## global variables 
+
 #' Permutation test for general dependent truncation
 #'
 #' Perform permutation test based on conditional or unconditional approach.
