@@ -51,7 +51,7 @@
 #' 
 #' @importFrom BB spg
 #' @importFrom survival Surv survfit basehaz coxph
-#' @importFrom stats model.matrix pchisq pnorm rexp runif var
+#' @importFrom stats model.matrix pchisq pnorm rexp runif var complete.cases
 #' @importFrom parallel detectCores parLapply makeCluster clusterExport stopCluster
 #'
 #' @export

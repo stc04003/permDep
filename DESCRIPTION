@@ -11,5 +11,5 @@ RoxygenNote: 6.1.1
 URL: http://github.com/stc04003/permDep
 BugReports: http://github.com/stc04003/permDep/issues
 Imports: BB, survival, parallel, ggplot2, gganimate
-Author: Sy Han Chiou [aut, cre]
-Maintainer: Sy Han Chiou <schiou@utdallas.edu>
+Author: Sy Han (Steven) Chiou [aut, cre]
+Maintainer: Sy Han (Steven) Chiou <schiou@utdallas.edu>
