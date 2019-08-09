@@ -10,7 +10,7 @@ version](https://img.shields.io/badge/R%3E%3D-3.4.0-6666ff.svg)](https://cran.r-
 Status](https://travis-ci.org/stc04003/permDep.svg?branch=master)](https://travis-ci.org/stc04003/permDep)
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/stc04003/permDep?branch=master&svg=true)](https://ci.appveyor.com/project/stc04003/permDep)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2019--06--27-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2019--08--10-yellowgreen.svg)](/commits/master)
 
 ## **permDep**
 
@@ -34,6 +34,11 @@ You can install permDep from github with:
 ## install.packages("devtools")
 devtools::install_github("stc04003/permDep")
 ```
+
+### Online documentation
+
+[Online document](https://www.sychiou.com/permDep/index.html)
+demonstrate the usage of the main function, `permDep`.
 
 #### References:
 

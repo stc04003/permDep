@@ -8,19 +8,13 @@ output: github_document
 [![packageversion](https://img.shields.io/badge/Package%20version-1.0.3-orange.svg?style=flat-square)](commits/master)
 [![Travis-CI Build Status](https://travis-ci.org/stc04003/permDep.svg?branch=master)](https://travis-ci.org/stc04003/permDep)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/stc04003/permDep?branch=master&svg=true)](https://ci.appveyor.com/project/stc04003/permDep)
-[![Last-changedate](https://img.shields.io/badge/last%20change-`r gsub('-', '--', Sys.Date())`-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2019--08--10-yellowgreen.svg)](/commits/master)
  
 ## **permDep**
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
-```
+
 
 ***permDep*** implements permutation approaches to test for quasi-independence in left-truncated right-censored survival data.
 
@@ -28,14 +22,16 @@ knitr::opts_chunk$set(
 
 You can install and load **permDep** from CRAN using
 
-```{r cran-installation, eval = FALSE}
+
+```r
 install.packages("permDep")
 library(permDep)
 ```
 
 You can install permDep from github with:
 
-```{r gh-installation, eval = FALSE}
+
+```r
 ## install.packages("devtools")
 devtools::install_github("stc04003/permDep")
 ```

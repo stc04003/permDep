@@ -8,7 +8,7 @@ permDep(trun, obs, permSize, cens, sampling = c("conditional",
   "unconditional", "is.conditional", "is.unconditional"),
   kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
   nc = ceiling(detectCores()/2), seed = NULL, minp.eps = NULL,
-  plot.int = FALSE)
+  plot.int = FALSE, anim_name = NULL)
 }
 \arguments{
 \item{trun}{is the left truncation time.}
@@ -17,7 +17,7 @@ permDep(trun, obs, permSize, cens, sampling = c("conditional",
 
 \item{permSize}{is the number of permutations.}
 
-\item{cens}{is the status indicator; 0 = censored, 1 = event.}
+\item{cens}{is the status indicator if the observed failure time are subjected to right-censoring; 0 = censored, 1 = event.}
 
 \item{sampling}{a character string specifying the sampling method used in permutation.
 The following are permitted:
@@ -50,6 +50,10 @@ of uncensored events inside or outside of each interval, respectively.}
 
 \item{plot.int}{an optional logical value indicating whether an animated scaterplot will be produced
 to how the minp intervals are choosen for the observed data.}
+
+\item{anim_name}{an optional character string specifying the file name that the animation to be saved.
+When not specified, file name based on the current system date and time will be used.
+This argument will only be executed when \code{plot.int = TRUE}.}
 }
 \value{
 A list containing output with the following components:
