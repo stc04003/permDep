@@ -33,7 +33,10 @@ globalVariables(c("grp", "stp")) ## global variables
 #' \item{NULL: }{automatic selection using the algorithm outlined in Chiou (2018) will be used. }
 #' }
 #' @param plot.int an optional logical value indicating whether an animated scaterplot will be produced
-#' to how the minp intervals are choosen for the observed data. 
+#' to how the minp intervals are choosen for the observed data.
+#' @param anim_name an optional character string specifying the file name that the animation to be saved.
+#' When not specified, file name based on the current system date and time will be used.
+#' This argument will only be executed when \code{plot.int = TRUE}.
 #' 
 #' @return A list containing output with the following components:
 #' \describe{
@@ -87,10 +90,10 @@ permDep <- function(trun, obs, permSize, cens,
                     sampling = c("conditional", "unconditional", "is.conditional", "is.unconditional"),
                     kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
                     nc = ceiling(detectCores() / 2), seed = NULL,
-                    minp.eps = NULL, plot.int = FALSE) {
+                    minp.eps = NULL, plot.int = FALSE, anim_name = NULL) {
     sampling <- match.arg(sampling)
     n <- length(obs)
-    if (is.missing(cens)) cens <- rep(1, length(trun))
+    if (missing(cens)) cens <- rep(1, length(trun))
     ## if (!(sampling %in% c("cond", "ucond", "ucond1", "ucond2",
     ##                       "ucond3", "ucond4", "iscond", "isucond")))
     obsKen <- obsKenp <- obs1 <- obs2 <- obsP1 <- obsP2 <- obsTest1 <- obsTest2 <- p1 <- p2 <- NULL
@@ -98,11 +101,12 @@ permDep <- function(trun, obs, permSize, cens,
         tmp <- getKendall(trun, obs, cens)
         obsKen <- tmp[1]
         obsKenp <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
-        obs1 <- getMinP(trun, obs, cens, eps = minp.eps, plotInt = plot.int)
+        obs1 <- getMinP(trun, obs, cens, eps = minp.eps, plotInt = plot.int, anim_name = anim_name)
         obsP1 <- obs1$minP
         obsTest1 <- obs1$maxTest
         p1 <- obs1$p
-        obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps, plotInt = plot.int)
+        obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps,
+                        plotInt = plot.int, anim_name = anim_name)
         obsP2 <- obs2$minP
         obsTest2 <- obs2$maxTest
         p2 <- obs2$p
@@ -114,13 +118,14 @@ permDep <- function(trun, obs, permSize, cens,
             obsKenp <- 2 - 2 * pnorm(abs(tmp[1] / sqrt(tmp[2])))
         }
         if (minp1Only) {        
-            obs1 <- getMinP(trun, obs, cens, eps = minp.eps, plotInt = plot.int)
+            obs1 <- getMinP(trun, obs, cens, eps = minp.eps, plotInt = plot.int, anim_name = anim_name)
             obsP1 <- obs1$minP
             obsTest1 <- obs1$maxTest
             p1 <- obs1$p
         }
         if (minp2Only) {
-            obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps, plotInt = plot.int)
+            obs2 <- getMinP(trun, obs, cens, minp1 = FALSE, eps = minp.eps,
+                            plotInt = plot.int, anim_name = anim_name)
             obsP2 <- obs2$minP
             obsTest2 <- obs2$maxTest
             p2 <- obs2$p
@@ -279,28 +284,33 @@ getScore <- function(x, y) {
 ## control <- list(eps = 1e-09, toler.chol = 1.818989e-12, iter.max = 20, toler.inf = 3.162278e-05, outer.max = 10)
 
 #' @importFrom ggplot2 ggplot geom_point scale_color_manual labs xlab ylab aes
-#' @importFrom gganimate transition_time animate
+#' @importFrom gganimate transition_states animate anim_save
 #' 
 getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
-                    eps = NULL, plotInt = FALSE) {
+                    eps = NULL, plotInt = FALSE, anim_name = NULL) {
     E <- min(10, round(0.2 * sum(cens)), round(0.2 * length(obs)))
     n <- length(obs)
     p <- NULL
     data0 <- data.frame(cbind(trun, obs, cens))[order(trun),]
     survObj <- with(data0, Surv(trun, obs, cens))
     log.rank.test <- log.rank.pval <- rep(NA, n)
+    if (plotInt) groups <- NULL
     if (minp1) {
         for (j in E:(n-E)) {
             group <- rep(1, n)
             group[-(1:j)] <- 2
+            if (plotInt) groups[[j]] <- group
             if (sum(table(data0$cens, group)["1",] < E) == 0) {
                 log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
                 if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
                     break
-            }
+            }           
+        }
+        if (plotInt) {
+            groups[[n]] <- rep(NA, n)
+            groups <- lapply(groups, function(z) if(is.null(z)) rep(NA, n) else z)
         }
     }
-    if (plotInt) groups <- NULL
     if (!minp1) {
         trun.tmp <- with(data0, trun[cens == 1])
         if (is.null(eps)) {
@@ -345,11 +355,13 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
         p <- ggplot(dat, aes(x = trun, y = obs, color = factor(grp))) +
             geom_point(show.legend = FALSE, alpha = 0.7, cex = 2) +
             scale_color_manual(breaks = c("1", "2"), values = c("black", "red")) +
-            transition_time(stp) +
-            labs(title = "Cutpoint: {frame_time}") +
+            transition_states(stp) +
+            labs(title = "Cutpoint: {closest_state}") +
             xlab("Truncation time") +
             ylab("Survival time")
         print(animate(p, start_pause = 10, end_pause = 10))
+        if (is.null(anim_name)) anim_save(paste("minp-", gsub(" ", "-", date()), ".gif", sep = ""))
+        if (!is.null(anim_name)) anim_save(paste(anim_name, ".gif", sep = ""))
     }
     list(maxP = max(log.rank.pval, na.rm = TRUE),
          minP = min(log.rank.pval, na.rm = TRUE),
