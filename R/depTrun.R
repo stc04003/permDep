@@ -7,7 +7,7 @@ globalVariables(c("grp", "stp")) ## global variables
 #' @param trun is the left truncation time.
 #' @param obs is the observed failure time.
 #' @param permSize is the number of permutations.
-#' @param cens is the status indicator; 0 = censored, 1 = event.
+#' @param cens is the status indicator if the observed failure time are subjected to right-censoring; 0 = censored, 1 = event. 
 #' @param sampling a character string specifying the sampling method used in permutation.
 #' The following are permitted:
 #' \describe{
@@ -90,6 +90,7 @@ permDep <- function(trun, obs, permSize, cens,
                     minp.eps = NULL, plot.int = FALSE) {
     sampling <- match.arg(sampling)
     n <- length(obs)
+    if (is.missing(cens)) cens <- rep(1, length(trun))
     ## if (!(sampling %in% c("cond", "ucond", "ucond1", "ucond2",
     ##                       "ucond3", "ucond4", "iscond", "isucond")))
     obsKen <- obsKenp <- obs1 <- obs2 <- obsP1 <- obsP2 <- obsTest1 <- obsTest2 <- p1 <- p2 <- NULL
