@@ -37,8 +37,8 @@ devtools::install_github("stc04003/permDep")
 
 ### Online documentation
 
-[Online document](https://www.sychiou.com/permDep/index.html)
-demonstrate the usage of the main function, `permDep`.
+[Online document](https://www.sychiou.com/permDep/) demonstrate the
+usage of the main function, `permDep`.
 
 #### References:
 
