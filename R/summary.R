@@ -26,12 +26,12 @@ print.permDep <- function(x, ...) {
         cat(paste(" Unconditional permutation size = ", x$permSize, "\n"))
         cat(paste(" p-value =", sprintf("%.4f", x$p.valueMinp1), "\n"))
     }
-    if (x$minp1Only & x$sampling == "conditional") {
+    if (x$minp2Only & x$sampling == "conditional") {
         cat("\n Hypothesis test of quasi-independence based on minp2 statistics\n")
         cat(paste(" Conditional permutation size = ", x$permSize, "\n"))
         cat(paste(" p-value =", sprintf("%.4f", x$p.valueMinp2), "\n"))
     }
-    if (x$minp1Only & x$sampling == "unconditional") {
+    if (x$minp2Only & x$sampling == "unconditional") {
         cat("\n Hypothesis test of quasi-independence based on minp2 statistics\n")
         cat(paste(" Unconditional permutation size = ", x$permSize, "\n"))
         cat(paste(" p-value =", sprintf("%.4f", x$p.valueMinp2), "\n"))

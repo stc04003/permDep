@@ -1,5 +1,5 @@
 ---
-title: "Permutation tests for general dependent truncation -- illustration of the `permDep` function"
+title: "Illustration of the `permDep` function"
 author: Sy Han (Steven) Chiou
 date: "`r Sys.Date()`"
 output:
