@@ -86,7 +86,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/vig-permDep.html">Permutation tests for general dependent truncation -- illustration of the `permDep` function</a>
+      <a href="../articles/vig-permDep.html">Illustration of the `permDep` function</a>
     </li>
   </ul>
 </li>
@@ -241,7 +241,7 @@ Permutation Test for General Dependent Truncation.
 <span class='co'>## Perform conditional permutation with Kendall's tau, minp1 and minp2</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>123</span>)
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/system.time'>system.time</a></span>(<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/with'>with</a></span>(<span class='no'>dat</span>, <span class='fu'>permDep</span>(<span class='no'>trun</span>, <span class='no'>obs</span>, <span class='no'>B</span>, <span class='no'>delta</span>, <span class='kw'>nc</span> <span class='kw'>=</span> <span class='fl'>1</span>)))</div><div class='output co'>#&gt;    user  system elapsed 
-#&gt;    1.61    0.00    1.61 </div><div class='input'><span class='no'>fit</span></div><div class='output co'>#&gt; 
+#&gt;   1.714   0.000   1.715 </div><div class='input'><span class='no'>fit</span></div><div class='output co'>#&gt; 
 #&gt;  Hypothesis test of quasi-independence based on conditional Kendall's tau statistics
 #&gt;  Conditional permutation with size =  20 
 #&gt;  p-value = 0.7143 

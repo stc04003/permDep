@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Permutation tests for general dependent truncation – illustration of the <code>permDep</code> function • permDep</title>
+<title>Illustration of the <code>permDep</code> function • permDep</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Permutation tests for general dependent truncation – illustration of the &lt;code&gt;permDep&lt;/code&gt; function">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Illustration of the &lt;code&gt;permDep&lt;/code&gt; function">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -53,7 +53,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/vig-permDep.html">Permutation tests for general dependent truncation -- illustration of the `permDep` function</a>
+      <a href="../articles/vig-permDep.html">Illustration of the `permDep` function</a>
     </li>
   </ul>
 </li>
@@ -77,7 +77,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Permutation tests for general dependent truncation – illustration of the <code>permDep</code> function</h1>
+      <h1>Illustration of the <code>permDep</code> function</h1>
                         <h4 class="author">Sy Han (Steven) Chiou</h4>
             
             <h4 class="date">2019-08-10</h4>
@@ -217,10 +217,10 @@
 [<span class="dv">1</span>] <span class="dv">8</span>
 <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(f1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/permDep.html">permDep</a></span>(dat<span class="op">$</span>Trun, dat<span class="op">$</span>Time, <span class="dv">500</span>, <span class="dt">nc =</span> <span class="dv">1</span>))
    user  system elapsed 
- <span class="fl">19.632</span>   <span class="fl">0.005</span>  <span class="fl">19.635</span> 
+ <span class="fl">22.262</span>   <span class="fl">0.001</span>  <span class="fl">22.269</span> 
 <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(f2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/permDep.html">permDep</a></span>(dat<span class="op">$</span>Trun, dat<span class="op">$</span>Time, <span class="dv">500</span>, <span class="dt">nc =</span> parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>()))
    user  system elapsed 
-  <span class="fl">0.072</span>   <span class="fl">0.076</span>  <span class="fl">11.496</span> 
+  <span class="fl">0.091</span>   <span class="fl">0.061</span>  <span class="fl">11.939</span> 
 <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/identical">identical</a></span>(f1, f2)
 [<span class="dv">1</span>] <span class="ot">TRUE</span>
 <span class="op">&gt;</span><span class="st"> </span>f1
@@ -261,21 +261,25 @@
 
  Hypothesis test of quasi<span class="op">-</span>independence based on minp1 statistics
  Conditional permutation size =<span class="st">  </span><span class="dv">500</span> 
- p<span class="op">-</span>value =<span class="st"> </span><span class="fl">0.0020</span> 
-
- Hypothesis test of quasi<span class="op">-</span>independence based on minp2 statistics
- Conditional permutation size =<span class="st">  </span><span class="dv">500</span> 
- p<span class="op">-</span>value =<span class="st"> </span><span class="ot">NA</span> </code></pre></div>
+ p<span class="op">-</span>value =<span class="st"> </span><span class="fl">0.0020</span> </code></pre></div>
 <div class="figure">
 <img src="vig-minp1.gif">
 </div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="../reference/permDep.html">permDep</a></span>(dat<span class="op">$</span>Trun, dat<span class="op">$</span>Time, <span class="dv">500</span>, <span class="dt">minp2Only =</span> <span class="ot">TRUE</span>, 
-<span class="op">+</span><span class="st">         </span><span class="dt">plot.int =</span> <span class="ot">TRUE</span>, <span class="dt">anim_name =</span> <span class="st">"vig-minp2"</span>)</code></pre></div>
+<span class="op">+</span><span class="st">         </span><span class="dt">plot.int =</span> <span class="ot">TRUE</span>, <span class="dt">anim_name =</span> <span class="st">"vig-minp2"</span>)
+
+ Hypothesis test of quasi<span class="op">-</span>independence based on minp2 statistics
+ Conditional permutation size =<span class="st">  </span><span class="dv">500</span> 
+ p<span class="op">-</span>value =<span class="st"> </span><span class="fl">0.0080</span> </code></pre></div>
 <div class="figure">
 <img src="vig-minp2.gif">
 </div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="../reference/permDep.html">permDep</a></span>(dat<span class="op">$</span>Trun, dat<span class="op">$</span>Time, <span class="dv">500</span>, <span class="dt">minp2Only =</span> <span class="ot">TRUE</span>, <span class="dt">minp.eps =</span> <span class="st">"in"</span>,
-<span class="op">+</span><span class="st">         </span><span class="dt">plot.int =</span> <span class="ot">TRUE</span>, <span class="dt">anim_name =</span> <span class="st">"vig-minp2-2"</span>)</code></pre></div>
+<span class="op">+</span><span class="st">         </span><span class="dt">plot.int =</span> <span class="ot">TRUE</span>, <span class="dt">anim_name =</span> <span class="st">"vig-minp2-2"</span>)
+
+ Hypothesis test of quasi<span class="op">-</span>independence based on minp2 statistics
+ Conditional permutation size =<span class="st">  </span><span class="dv">500</span> 
+ p<span class="op">-</span>value =<span class="st"> </span><span class="fl">0.0020</span> </code></pre></div>
 <div class="figure">
 <img src="vig-minp2-2.gif">
 </div>
