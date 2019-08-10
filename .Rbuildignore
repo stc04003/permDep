@@ -5,3 +5,7 @@
 skipcheck*
 ^appveyor\.yml$
 ^\.travis\.yml$
+^vignettes$
+^docs$
+^\.git$
+^\.Rhistory$

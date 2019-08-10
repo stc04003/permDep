@@ -3,3 +3,5 @@
 *.o
 *.so
 *~
+*knit.md
+*utf8.md
