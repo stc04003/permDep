@@ -283,7 +283,7 @@ getScore <- function(x, y) {
 
 ## control <- list(eps = 1e-09, toler.chol = 1.818989e-12, iter.max = 20, toler.inf = 3.162278e-05, outer.max = 10)
 
-#' @importFrom ggplot2 ggplot geom_point scale_color_manual labs xlab ylab aes
+#' @importFrom ggplot2 ggplot geom_point labs xlab ylab aes scale_color_continuous
 #' @importFrom gganimate transition_states animate anim_save
 #' 
 getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
@@ -352,9 +352,10 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
                           grp = unlist(groups),
                           stp = rep(1:n, each = n))
         dat <- dat[complete.cases(dat),]
-        p <- ggplot(dat, aes(x = trun, y = obs, color = factor(grp))) +
+        p <- ggplot(dat, aes(x = trun, y = obs, color = grp)) +
             geom_point(show.legend = FALSE, alpha = 0.7, cex = 2) +
-            scale_color_manual(breaks = c("1", "2"), values = c("black", "red")) +
+            scale_color_continuous(low = "black", high = "red") +
+    ## scale_color_manual(breaks = c("1", "2"), values = c("black", "red")) +
             transition_states(stp) +
             labs(title = "Cutpoint: {closest_state}") +
             xlab("Truncation time") +

@@ -184,13 +184,35 @@ permDep(dat$Trun, dat$Time, 500, minp2Only = TRUE,
 
 ![](vig-minp2.gif)
 
-```{R minp2-2, cache = TRUE}
-permDep(dat$Trun, dat$Time, 500, minp2Only = TRUE, minp.eps = "in",
+
+We use `simDat2` to generate truncated data with non-monotone dependence. 
+This scenario would emphasize the usefulness of the minp2 test. 
+```{R, cache = TRUE}
+set.seed(123)
+dat <- simDat2(100, -.9) ## highly correlated data
+```
+
+
+```{R minp1-non-monotone, cache = TRUE}
+permDep(dat$Trun, dat$Time, 500, minp1Only = TRUE, 
+        plot.int = TRUE, anim_name = "vig-minp1-non-monotone")
+```
+
+![](vig-minp1-non-monotone.gif)
+
+```{R minp2-non-monotone1, cache = TRUE}
+permDep(dat$Trun, dat$Time, 500, minp2Only = TRUE, 
+        plot.int = TRUE, anim_name = "vig-minp2-non-monotone")
+```
+![](vig-minp2-non-monotone.gif)
+
+
+```{R minp2-non-monotone2, cache = TRUE}
+permDep(dat$Trun, dat$Time, 500, minp2Only = TRUE, minp.eps = "out",
         plot.int = TRUE, anim_name = "vig-minp2-2")
 ```
 
 ![](vig-minp2-2.gif)
-
 
 ## Reference
 
