@@ -284,7 +284,7 @@ getScore <- function(x, y) {
 ## control <- list(eps = 1e-09, toler.chol = 1.818989e-12, iter.max = 20, toler.inf = 3.162278e-05, outer.max = 10)
 
 #' @importFrom ggplot2 ggplot geom_point labs xlab ylab aes scale_color_continuous
-#' @importFrom gganimate transition_states animate anim_save
+#' @importFrom gganimate transition_time animate anim_save
 #' 
 getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
                     eps = NULL, plotInt = FALSE, anim_name = NULL) {
@@ -355,9 +355,10 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
         p <- ggplot(dat, aes(x = trun, y = obs, color = grp)) +
             geom_point(show.legend = FALSE, alpha = 0.7, cex = 2) +
             scale_color_continuous(low = "black", high = "red") +
-    ## scale_color_manual(breaks = c("1", "2"), values = c("black", "red")) +
-            transition_states(stp) +
-            labs(title = "Cutpoint: {closest_state}") +
+            ## scale_color_manual(breaks = c("1", "2"), values = c("black", "red")) +
+            transition_time(stp) +
+            ## labs(title = "Cutpoint: {closest_state}") +
+            labs(title = "Cutpoint: {frame_time}") +
             xlab("Truncation time") +
             ylab("Survival time")
         print(animate(p, start_pause = 10, end_pause = 10))
