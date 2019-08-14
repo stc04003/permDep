@@ -80,7 +80,7 @@
       <h1>Illustration of the <code>permDep</code> function</h1>
                         <h4 class="author">Sy Han (Steven) Chiou</h4>
             
-            <h4 class="date">2019-08-10</h4>
+            <h4 class="date">2019-08-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stc04003/permDep/blob/master/vignettes/vig-permDep.Rmd"><code>vignettes/vig-permDep.Rmd</code></a></small>
       <div class="hidden name"><code>vig-permDep.Rmd</code></div>
@@ -217,10 +217,10 @@
 [<span class="dv">1</span>] <span class="dv">8</span>
 <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(f1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/permDep.html">permDep</a></span>(dat<span class="op">$</span>Trun, dat<span class="op">$</span>Time, <span class="dv">500</span>, <span class="dt">nc =</span> <span class="dv">1</span>))
    user  system elapsed 
- <span class="fl">21.363</span>   <span class="fl">0.000</span>  <span class="fl">21.363</span> 
+ <span class="fl">24.861</span>   <span class="fl">0.008</span>  <span class="fl">24.878</span> 
 <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">123</span>);<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/system.time">system.time</a></span>(f2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/permDep.html">permDep</a></span>(dat<span class="op">$</span>Trun, dat<span class="op">$</span>Time, <span class="dv">500</span>, <span class="dt">nc =</span> parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>()))
    user  system elapsed 
-  <span class="fl">0.084</span>   <span class="fl">0.086</span>  <span class="fl">12.388</span> 
+  <span class="fl">0.093</span>   <span class="fl">0.041</span>  <span class="fl">12.000</span> 
 <span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/identical">identical</a></span>(f1, f2)
 [<span class="dv">1</span>] <span class="ot">TRUE</span>
 <span class="op">&gt;</span><span class="st"> </span>f1

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Sy Han (Steven) Chiou" />
 
-<meta name="date" content="2019-08-10" />
+<meta name="date" content="2019-08-14" />
 
 <title>Illustration of the permDep function</title>
 
@@ -1507,7 +1507,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Illustration of the <code>permDep</code> function</h1>
 <h4 class="author">Sy Han (Steven) Chiou</h4>
-<h4 class="date">2019-08-10</h4>
+<h4 class="date">2019-08-14</h4>
 
 </div>
 
@@ -1620,10 +1620,10 @@ NULL</code></pre>
 [1] 8
 &gt; set.seed(123);system.time(f1 &lt;- permDep(dat$Trun, dat$Time, 500, nc = 1))
    user  system elapsed 
- 22.239   0.000  22.243 
+ 21.385   0.002  21.300 
 &gt; set.seed(123);system.time(f2 &lt;- permDep(dat$Trun, dat$Time, 500, nc = parallel::detectCores()))
    user  system elapsed 
-  0.084   0.089  12.823 
+  0.103   0.039  12.457 
 &gt; identical(f1, f2)
 [1] TRUE
 &gt; f1

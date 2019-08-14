@@ -288,7 +288,7 @@ getScore <- function(x, y) {
 #' 
 getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
                     eps = NULL, plotInt = FALSE, anim_name = NULL) {
-    E <- min(10, round(0.2 * sum(cens)), round(0.2 * length(obs)))
+    E <- min(10, round(0.2 * sum(cens)), round(0.2 * length(unique(obs))))
     n <- length(obs)
     p <- NULL
     data0 <- data.frame(cbind(trun, obs, cens))[order(trun),]
@@ -319,9 +319,9 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
             eps <- pmax(eps1, eps2)
             eps <- rep(min(eps), length(eps))
         }
-        if ((eps == "in")[1])  ## interior has at least sum(cens) - E events
+        if ((eps == "out")[1])  ## interior has at least sum(cens) - E events
             eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[sum(cens) - E]))
-        if ((eps == "out")[1])  ## interior has at least E events
+        if ((eps == "in")[1])  ## interior has at least E events
             eps <- with(data0, sapply(1:n, function(x) sort(abs(trun[x] - trun.tmp))[E])) ## interior has E events
         if (length(eps) != n) {
             if (n %% length(eps) > 0)
@@ -344,7 +344,7 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
         }
     }
     if (max(log.rank.test, na.rm = TRUE) < -990)
-        stop("minp.eps yields invalid insufficient intervals.")
+        print("minp.eps yields invalid insufficient intervals.")
     else log.rank.pval <- 1 - pchisq(log.rank.test, df = 1)
     if (plotInt) {        
         dat <- data.frame(trun = rep(data0$trun,n), 
