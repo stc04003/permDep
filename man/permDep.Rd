@@ -4,11 +4,21 @@
 \alias{permDep}
 \title{Permutation test for general dependent truncation}
 \usage{
-permDep(trun, obs, permSize, cens, sampling = c("conditional",
-  "unconditional", "is.conditional", "is.unconditional"),
-  kendallOnly = FALSE, minp1Only = FALSE, minp2Only = FALSE,
-  nc = ceiling(detectCores()/2), seed = NULL, minp.eps = NULL,
-  plot.int = FALSE, anim_name = NULL)
+permDep(
+  trun,
+  obs,
+  permSize,
+  cens,
+  sampling = c("conditional", "unconditional", "is.conditional", "is.unconditional"),
+  kendallOnly = FALSE,
+  minp1Only = FALSE,
+  minp2Only = FALSE,
+  nc = ceiling(detectCores()/2),
+  seed = NULL,
+  minp.eps = NULL,
+  plot.int = FALSE,
+  anim_name = NULL
+)
 }
 \arguments{
 \item{trun}{is the left truncation time.}
@@ -48,8 +58,9 @@ of uncensored events inside or outside of each interval, respectively.}
 \item{NULL: }{automatic selection using the algorithm outlined in Chiou (2018) will be used. }
 }}
 
-\item{plot.int}{an optional logical value indicating whether an animated scaterplot will be produced
-to how the minp intervals are choosen for the observed data.}
+\item{plot.int}{an optional logical value indicating whether an
+animated scatterplot will be produced
+to how the minp intervals are chosen for the observed data.}
 
 \item{anim_name}{an optional character string specifying the file name that the animation to be saved.
 When not specified, file name based on the current system date and time will be used.

@@ -55,7 +55,7 @@ simDat1 <- function(n, tau) {
 }
 ```
 
-The `simDat1` funciton generates monotone dependence model and is used in @chiou2018permutation in the absence of censoring. 
+The `simDat1` function generates monotone dependence model and is used in @chiou2018permutation in the absence of censoring. 
 The following scatterplots confirms the monotonic dependence.
 ```{R sim1-plot}
 library(ggplot2)
@@ -169,6 +169,9 @@ The performance of the minp2 test depends on the specification of the interval w
 however, the resulting $p$-values from the above example are significant at $\alpha = 0.05$.
 
 ## Track intervals from minp tests
+
+**To render the animation in this section, the users might need to install the [`gifski`](https://cran.r-project.org/web/packages/gifski/index.html) package.**
+
 Enabling `plot.int` allows users to visualize the intervals used in computing the log-rank statistics 
 when applying the minp1 and the minp2 tests on the observed data.
 ```{R minp1, cache = TRUE}
@@ -177,6 +180,9 @@ permDep(dat$Trun, dat$Time, 500, minp1Only = TRUE,
 ```
 
 ![](vig-minp1.gif)
+
+
+
 ```{R minp2, cache = TRUE}
 permDep(dat$Trun, dat$Time, 500, minp2Only = TRUE, 
         plot.int = TRUE, anim_name = "vig-minp2")

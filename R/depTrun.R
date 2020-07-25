@@ -32,8 +32,9 @@ globalVariables(c("grp", "stp")) ## global variables
 #' of uncensored events inside or outside of each interval, respectively.}
 #' \item{NULL: }{automatic selection using the algorithm outlined in Chiou (2018) will be used. }
 #' }
-#' @param plot.int an optional logical value indicating whether an animated scaterplot will be produced
-#' to how the minp intervals are choosen for the observed data.
+#' @param plot.int an optional logical value indicating whether an
+#' animated scatterplot will be produced
+#' to how the minp intervals are chosen for the observed data.
 #' @param anim_name an optional character string specifying the file name that the animation to be saved.
 #' When not specified, file name based on the current system date and time will be used.
 #' This argument will only be executed when \code{plot.int = TRUE}.
