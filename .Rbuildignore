@@ -9,3 +9,5 @@ skipcheck*
 ^docs$
 ^\.git$
 ^\.Rhistory$
+^CRAN-RELEASE$
+^cran-comments\.md$

@@ -150,13 +150,17 @@ dat <- simDat1(30, .9) ## highly correlated data
 Note that the computation time depends on the machine setting in the current host. 
 ```{R nc, cache = TRUE}
 parallel::detectCores()
-set.seed(123);system.time(f1 <- permDep(dat$Trun, dat$Time, 500, nc = 1))
-set.seed(123);system.time(f2 <- permDep(dat$Trun, dat$Time, 500, nc = parallel::detectCores()))
+set.seed(123); system.time(f1 <- permDep(dat$Trun, dat$Time, 500, nc = 1))
+set.seed(123); system.time(f2 <- permDep(dat$Trun, dat$Time, 500, nc = 2))
 identical(f1, f2)
 f1
 ```
-Computation time is faster with parallel computation, e.g., `f2`, 
-but using `r parallel::detectCores()` does not make the program run `r parallel::detectCores()` faster.
+Computation time is faster with parallel computation.
+The following codes run parallel computation with all available cores:
+```{R, eval = FALSE}
+set.seed(123); system.time(f2 <- permDep(dat$Trun, dat$Time, 500, nc = parallel::detectCores()))
+```
+However, using `r parallel::detectCores()` does not make the program run `r parallel::detectCores()` faster.
 
 ### Different `minp.eps` options
 ```{R minp, cache = TRUE}
