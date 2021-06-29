@@ -118,22 +118,28 @@ In addition, this is required to be greater than the truncation time
 * `cens` is the status indicator; 0 = censored, 1 = event
 * `sampling` is a character string specifying the sampling method  used in permutation. 
   The following are permitted. 
+  
   * `conditional` conditional permutation
   * `unconditional` unconditional permutation
   * `is.conditional` importance sampling version of the conditional permutation (under development)
   * `is.unconditional` importance sampling version of the unconditional permutation (under development)
+
 * `kendallOnly` is a logical value indicating whether to use the conditional Kendall's tau as the only test statistics
 * `minp1Only` is a logical value indicating whether to use the minp1 test as the only test statistics
 * `minp2Only` is a logical value indicating whether to use the minp2 test as the only test statistics
+
   * The default is to use all three test statistics (conditional Kendall's tau, minp1, and minp2) 
+
 * `nc` is the number of cores used in the permutation test. When `nc > 1`, permutation is carried out with parallel computing methods.
 The default is to use half of the available number of CPU cores on the current host.
 * `seed` is an optional vector containing random seeds to be used to generate permutation samples. Random seeds will be used when left unspecified.
 * `minp.eps` is an optional value indicating the width of the intervals used in minp2 procedure. The following are permitted.
+
   * *a single numerical number* sets the common width for all intervals
   * *a numerical vector* uses user specified width for the intervals. The length of the vector needs to be a sub-multiple or multiple of the number of uncensored events. 
   * *a character string* uses the pre-implemented algorithm to calculate the width of the intervals. This option can be either "in" or "out", which require the minimum number of uncensored events inside or outside of each interval, respectively.
   * `NULL` uses the automatic selection algorithm outlined in @chiou2018permutation
+
 * `plot.int` is a logical value indicating whether to plot the intervals when applying the minp tests. 
 This is more useful when only one of `minp1Only` and `minp2Only` is `TRUE`.
 
