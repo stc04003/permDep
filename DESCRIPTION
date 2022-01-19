@@ -1,16 +1,16 @@
 Package: permDep
 Title: Permutation Tests for General Dependent Truncation
-Version: 1.0.5
+Version: 1.0.6
 Authors@R: c(person("Sy Han (Steven)", "Chiou", email = "schiou@utdallas.edu", role = c("aut", "cre", "cph")))
 Description: Implementations of permutation approaches proposed in Chiou et al. (2018) <doi:10.1016/j.csda.2018.07.012> to hypothesis testing for quasi-independence of truncation time and failure time. The implemented approaches are powerful against non-monotone alternatives and thereby offer protection against erroneous assumptions of quasi-independence. The proposed tests use either a conditional or an unconditional method to evaluate the permutation p-value. The conditional method was first developed in Tsai (1980) <doi:10.1093/biomet/77.1.169> and Efron and Petrosian (1992) <doi:10.1086/171931>. The unconditional method provides a valid approximation to the conditional method, yet computationally simpler and does not hold fixed the size of each risk sets. Users also have an option to carry out the proposed permutation tests in a parallel computing fashion.
 Depends: R (>= 3.5.0)
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 NeedsCompilation: yes
-URL: http://github.com/stc04003/permDep
-BugReports: http://github.com/stc04003/permDep/issues
+URL: https://github.com/stc04003/permDep
+BugReports: https://github.com/stc04003/permDep/issues
 Imports: BB, survival, parallel, ggplot2, gganimate
-Author: Sy Han (Steven) Chiou [aut, cre]
+Author: Sy Han (Steven) Chiou [aut, cre, cph]
 Maintainer: Sy Han (Steven) Chiou <schiou@utdallas.edu>

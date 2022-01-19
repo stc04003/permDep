@@ -16,14 +16,15 @@ Users also have an option to carry out the proposed permutation tests in a
 parallel computing fashion.
 }
 \references{
-Chiou, S.H., Qian, J., and Betensky, R.A. (2017).
-Permutation Test for General Dependent Truncation. \emph{Techreport}
+Chiou, S.H., Qian, J., and Betensky, R.A. (2018).
+Permutation Test for General Dependent Truncation.
+\emph{Computational Statistics \& Data Analysis}, 128, p308--324.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://github.com/stc04003/permDep}
-  \item Report bugs at \url{http://github.com/stc04003/permDep/issues}
+  \item \url{https://github.com/stc04003/permDep}
+  \item Report bugs at \url{https://github.com/stc04003/permDep/issues}
 }
 
 }
