@@ -53,7 +53,7 @@ globalVariables(c("grp", "stp")) ## global variables
 #'
 #' @references Chiou, S.H., Qian, J., and Betensky, R.A. (2018).
 #' Permutation Test for General Dependent Truncation.
-#' \emph{Computational Statistics \& Data Analysis}, 128, p308--324.
+#' \emph{Computational Statistics & Data Analysis}, 128, p308--324.
 #' 
 #' @importFrom BB spg
 #' @importFrom survival Surv survfit basehaz coxph
@@ -295,22 +295,20 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
     data0 <- data.frame(cbind(trun, obs, cens))[order(trun),]
     survObj <- with(data0, Surv(trun, obs, cens))
     log.rank.test <- log.rank.pval <- rep(NA, n)
-    if (plotInt) groups <- NULL
+    groups <- NULL
     if (minp1) {
         for (j in E:(n-E)) {
             group <- rep(1, n)
             group[-(1:j)] <- 2
-            if (plotInt) groups[[j]] <- group
+            groups[[j]] <- group
             if (sum(table(data0$cens, group)["1",] < E) == 0) {
                 log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)
                 if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
                     break
             }           
         }
-        if (plotInt) {
-            groups[[n]] <- rep(NA, n)
-            groups <- lapply(groups, function(z) if(is.null(z)) rep(NA, n) else z)
-        }
+        groups[[n]] <- rep(NA, n)
+        groups <- lapply(groups, function(z) if(is.null(z)) rep(NA, n) else z)
     }
     if (!minp1) {
         trun.tmp <- with(data0, trun[cens == 1])
@@ -332,7 +330,7 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
         for (j in 1:n) {
             group <- rep(1, n)
             group[abs(data0[,"trun"] - data0[j,"trun"]) <= eps[j]] <- 2
-            if (plotInt) groups[[j]] <- group
+            groups[[j]] <- group
             if (length(unique(group)) > 1 & sum(table(data0$cens, group)["1",] < E) == 0) {
                 log.rank.test[j] <- getScore(model.matrix(~ factor(group) - 1), survObj)                
                 if (!is.na(obsTest) && !is.na(log.rank.test[j]) && log.rank.test[j] >= obsTest)
@@ -340,7 +338,7 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
             }
             if (length(unique(group)) == 1 || sum(table(data0$cens, group)["1",] < E) > 0) {
                 log.rank.test[j] <- -999
-                if (plotInt) groups[[j]] <- rep(NA, n)
+                groups[[j]] <- rep(NA, n)
             }
         }
     }
@@ -368,6 +366,8 @@ getMinP <- function(trun, obs, cens, obsTest = NA, minp1 = TRUE,
     }
     list(maxP = max(log.rank.pval, na.rm = TRUE),
          minP = min(log.rank.pval, na.rm = TRUE),
+         maxPcut = data0$trun[which(diff(groups[[which.max(log.rank.pval)]]) != 0) + 1],
+         minPcut = data0$trun[which(diff(groups[[which.min(log.rank.pval)]]) != 0) + 1],
          maxTest = max(log.rank.test, na.rm = TRUE),
          minTest = min(log.rank.test, na.rm = TRUE),
          p = p)

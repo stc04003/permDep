@@ -3,7 +3,6 @@
 \docType{package}
 \name{permDep-package}
 \alias{permDep-package}
-\alias{_PACKAGE}
 \alias{permDep-packages}
 \title{Permutation Test for General Dependent Truncation}
 \description{
@@ -18,7 +17,7 @@ parallel computing fashion.
 \references{
 Chiou, S.H., Qian, J., and Betensky, R.A. (2018).
 Permutation Test for General Dependent Truncation.
-\emph{Computational Statistics \& Data Analysis}, 128, p308--324.
+\emph{Computational Statistics & Data Analysis}, 128, p308--324.
 }
 \seealso{
 Useful links:
@@ -29,6 +28,6 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Sy Han (Steven) Chiou \email{schiou@utdallas.edu} [copyright holder]
+\strong{Maintainer}: Sy Han (Steven) Chiou \email{schiou@smu.edu} [copyright holder]
 
 }

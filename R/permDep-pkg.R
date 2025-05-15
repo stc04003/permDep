@@ -13,6 +13,6 @@
 #' @docType package
 #' @references  Chiou, S.H., Qian, J., and Betensky, R.A. (2018).
 #' Permutation Test for General Dependent Truncation.
-#' \emph{Computational Statistics \& Data Analysis}, 128, p308--324.
+#' \emph{Computational Statistics & Data Analysis}, 128, p308--324.
 "_PACKAGE"
 NULL

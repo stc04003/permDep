@@ -1,6 +1,6 @@
 #' @export
 print.permDep <- function(x, ...) {
-    if (class(x) != "permDep") stop("Must be a permDep object")
+    if (!is.permDep(x)) stop("Must be a permDep object")
     if (all(x$kendallOnly, x$minp1Only, x$minp2Only) || all(!x$kendallOnly, !x$minp1Only, !x$minp2Only)) {
         x$kendallOnly <- TRUE
         x$minp1Only <- TRUE
@@ -38,3 +38,5 @@ print.permDep <- function(x, ...) {
     }    
     cat("\n")
 }
+
+is.permDep <- function(x) inherits(x, "permDep")

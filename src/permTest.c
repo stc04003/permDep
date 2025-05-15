@@ -7,9 +7,10 @@ void mysampleC(int *x, int *n, int *N,
 	      double *out) {
   int t = 0; 
   int m = 0; 
-  double u;
+  double u = 0;
   while (m < *n) {
-    u = runif(0, 1);
+    // u = runif(0, 1);
+    u = unif_rand();
     if ( (*N - t) * u >= *n - m ) { t += 1; }
     else {
       out[m] = x[t];
@@ -23,7 +24,7 @@ void kendallTrun(double *x, double *y, double *Delta, int *n,
 		 // output
 		 double *out) {
   int i, j;
-  double *bb = Calloc(*n * (*n - 1), double);
+  double *bb = calloc(*n * (*n - 1), sizeof(double));
   double M = 0.0;
   double v = 0.0;
   double v1 = 0.0;
@@ -57,7 +58,7 @@ void kendallTrun(double *x, double *y, double *Delta, int *n,
   // out[1] = 4 * (v / (*n * (*n - 1) * (*n - 2))) / (mu * mu * *n);
   out[1] = 4 * v / (mu * mu * *n);
   out[2] = M;
-  Free(bb);
+  free(bb);
 }
 
 void kendallTrunWgt(double *x, double *y, double *Delta, int *n, double *scX, double *scT, 

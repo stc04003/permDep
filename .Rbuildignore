@@ -8,6 +8,7 @@ skipcheck*
 ^vignettes$
 ^docs$
 ^\.git$
+^\.gitignore
 ^\.Rhistory$
 ^CRAN-RELEASE$
 ^cran-comments\.md$

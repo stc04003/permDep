@@ -4,13 +4,13 @@ state and is being actively
 developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![minimal R
 version](https://img.shields.io/badge/R%3E%3D-3.4.0-6666ff.svg)](https://cran.r-project.org/)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/permDep)](https://cran.r-project.org/package=permDep)
-[![packageversion](https://img.shields.io/badge/Package%20version-1.0.3-orange.svg?style=flat-square)](commits/master)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/permDep)](https://cran.r-project.org/package=permDep)
+[![packageversion](https://img.shields.io/badge/Package%20version-1.1.0-orange.svg?style=flat-square)](commits/master)
 [![Travis-CI Build
 Status](https://travis-ci.org/stc04003/permDep.svg?branch=master)](https://travis-ci.org/stc04003/permDep)
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/stc04003/permDep?branch=master&svg=true)](https://ci.appveyor.com/project/stc04003/permDep)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2019--08--10-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2025--05--15-yellowgreen.svg)](/commits/master)
 
 ## **permDep**
 
@@ -43,7 +43,7 @@ of the main function, `permDep`.
 
 #### References:
 
-  - Chiou, S.H., Qian, J., and Betensky, R.A. (2017). Permutation Test
-    for General Dependent Truncation. 
-  - Tsai, W.Y., (1990). Testing the Assumption of Independence of
-    Truncation Time and Failure Time.   169–177.
+- Chiou, S.H., Qian, J., and Betensky, R.A. (2017). Permutation Test for
+  General Dependent Truncation.
+- Tsai, W.Y., (1990). Testing the Assumption of Independence of
+  Truncation Time and Failure Time. 169–177.
