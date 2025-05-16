@@ -6,9 +6,12 @@ skipcheck*
 ^appveyor\.yml$
 ^\.travis\.yml$
 ^vignettes$
+^\.Rhistory$
 ^docs$
 ^\.git$
+^\.github$
 ^\.gitignore
 ^\.Rhistory$
 ^CRAN-RELEASE$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
